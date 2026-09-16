@@ -183,6 +183,9 @@ button.btn.sm{padding:7px 12px;font-size:13.5px}
 .pl-tit{font-family:var(--serif);font-size:19px;line-height:1.25}
 .pl-obj{margin:9px 0 0;padding-left:18px;font-size:13.5px;color:var(--tinta2)}
 .pl-h3{font-family:var(--serif);font-size:22px;margin:28px 0 12px;font-weight:600}
+.pl-ev{margin-top:11px;padding:10px 12px;background:var(--agua);border-radius:5px;font-size:12.8px;color:var(--tinta2);line-height:1.5}
+.pl-ev b{color:var(--tinta)}
+.pl-lock{font-size:12.5px;color:var(--tinta2);margin:11px 0 0;font-style:italic}
 .pl-fase{text-align:left;cursor:pointer;width:100%}
 @media (max-width:520px){
   .pl-card{padding:14px;gap:11px}
@@ -2306,6 +2309,16 @@ const PLAN = [
 ];
 PLAN.forEach((b,i)=>b.id=i+1);
 
+/* Cada bloque tiene una prueba que hay que superar para pasar al siguiente.
+   Los tres bloques con cupo de errores en el examen piden más nota. */
+const UMBRAL = {5:90, 6:80, 11:80};
+PLAN.forEach(b=>{
+  if(b.sim)                 b.ev = {examen:true, meta:100};
+  else if(b.a.k==="test")   b.ev = {ut:b.a.ut, n:b.a.n, meta:UMBRAL[b.u]||75};
+  else if(b.u)              b.ev = {ut:b.u,   n:10,    meta:UMBRAL[b.u]||75};
+  else                      b.ev = {ut:0,     n:15,    meta:75};
+});
+
 const FASE = {
   1:"Vocabulario y base", 2:"Balizamiento", 3:"Reglamento RIPA",
   4:"Navegación y mar", 5:"Carta de navegación", 6:"Simulacros"
@@ -2326,7 +2339,7 @@ function plural(n,s,p){ return n+" "+(n===1?s:p); }
 function hhmm(m){ const h=Math.floor(m/60), r=m%60; return h?(h+" h"+(r?" "+r+" min":"")):(r+" min"); }
 
 let PL = Store.get("per.plan", null) || {};
-PL = Object.assign({ini:null, desde:null, bd:1, desc:[5,6], hechos:{}, examen:null}, PL);
+PL = Object.assign({ini:null, desde:null, bd:1, desc:[5,6], hechos:{}, notas:{}, estricto:true, examen:null}, PL);
 if(!PL.ini) PL.ini = fkey(new Date());
 if(!PL.desde) PL.desde = PL.ini;
 function savePL(){ Store.set("per.plan", PL); }
@@ -2576,6 +2589,13 @@ function plRitmo(D){
       Las fechas se calculan empezando hoy con lo que te queda por hacer.
       Los cinco simulacros ocupan el día entero: el examen dura 90 minutos y no se puede partir.
     </p>
+    <label class="fld" style="margin-top:20px">Modo estricto</label>
+    <div class="pl-days">
+      <button class="pl-day${PL.estricto?" on":""}" onclick="plEstricto()">${PL.estricto?"Activado: no avanzo sin aprobar":"Desactivado: puedo saltar bloques"}</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--tinta3);margin:8px 0 0">
+      Con el modo estricto, cada bloque se cierra solo cuando superas su test, y el siguiente queda bloqueado hasta entonces. Es lo que hace que llegues al examen sin agujeros.
+    </p>
     <div class="row" style="margin-top:18px">
       <button class="btn" onclick="plGuardar()">Guardar fechas</button>
       <button class="btn ghost" onclick="plCorrer()">Correr el plan a partir de hoy</button>
@@ -2587,49 +2607,164 @@ function plRitmo(D){
 /* ---------- bloque ---------- */
 function plBloque(b, destacado, compacto){
   const done = !!PL.hechos[b.id];
+  const nota = PL.notas[b.id];
+  const libre = plDisp(b.id);
   const hoy = plHoy();
   const f = b.fecha ? fpar(b.fecha) : null;
   const tarde = f && !done && f < hoy;
   const et = b.u ? ("UT "+b.u) : "General";
   const borde = destacado ? "border:2px solid var(--magenta)"
-              : (tarde ? "border:1px solid var(--amar)" : "border:1px solid var(--veril)");
-  let h = `<div class="panel pl-card${done?" done":""}" style="${borde}">`;
+              : (!libre ? "border:1px dashed var(--veril)"
+              : (tarde ? "border:1px solid var(--amar)" : "border:1px solid var(--veril)"));
+  let h = `<div class="panel pl-card${done?" done":""}" style="${borde};${!libre?"opacity:.62":""}">`;
   if(f && !destacado){
     h += `<div class="pl-fecha"><div class="d">${f.getDate()}</div><div class="m">${PLMESC[f.getMonth()]}</div><div class="w">${PLDIAC[f.getDay()]}</div></div>`;
   }
   h += `<div style="flex:1;min-width:0">
     <div class="pl-meta"${tarde?' style="color:var(--amar)"':''}>${et} · bloque ${b.id} de ${PLAN.length} · ${b.m} min${b.sim?" · sesión larga":""}${tarde?" · atrasado "+plural(fdif(f,hoy),"día","días"):""}</div>
     <div class="pl-tit">${b.t}</div>`;
+
   if(!compacto){
-    h += `<ul class="pl-obj">${b.o.map(x=>"<li>"+x+"</li>").join("")}</ul>
-      <div class="row" style="margin-top:14px">
-        <button class="btn${done?" ghost":" mag"}" onclick="plIr(${b.id})">${plVerbo(b)}</button>
-        <button class="btn ghost" onclick="plMarcar(${b.id})">${done?"Desmarcar":"Marcar como hecho"}</button>
+    h += `<ul class="pl-obj">${b.o.map(x=>"<li>"+x+"</li>").join("")}</ul>`;
+
+    // exigencia del bloque
+    h += `<div class="pl-ev">`;
+    if(b.ev.examen){
+      h += `<b>Para superarlo:</b> el examen completo tiene que salir apto con el doble criterio oficial.`;
+    } else {
+      h += `<b>Para superarlo:</b> ${b.ev.n} preguntas de ${b.ev.ut?("la unidad "+b.ev.ut):"todas las unidades"} con ${b.ev.meta} % de aciertos o más`;
+      h += UMBRAL[b.u] ? ` <span style="color:var(--mal)">· materia con cupo de errores en el examen</span>.` : `.`;
+    }
+    if(nota){
+      const col = nota.sup ? "var(--ok)" : "var(--mal)";
+      h += `<div style="margin-top:7px;color:${col}">Último intento: ${nota.ok} de ${nota.n} · ${nota.pc} %${nota.sup?" · superado":" · no llega"}${nota.int>1?(" · "+plural(nota.int,"intento","intentos")):""}</div>`;
+    }
+    h += `</div>`;
+
+    if(!libre){
+      const a = plActual();
+      h += `<p class="pl-lock">Bloqueado. Primero hay que superar el bloque ${a.id}: ${a.t}.</p>`;
+    } else {
+      h += `<div class="row" style="margin-top:14px">
+        <button class="btn ghost" onclick="plIr(${b.id})">${plVerbo(b)}</button>
+        <button class="btn mag" onclick="plTest(${b.id})">${done?"Repetir el test":(nota?"Volver a intentarlo":"Hacer el test del día")}</button>
       </div>`;
+      if(!done && !b.ev.examen){
+        h += `<p class="pl-lock" style="color:var(--tinta3)">El bloque se marca solo cuando apruebas su test.</p>`;
+      }
+    }
   } else {
-    h += `<div class="row" style="margin-top:10px"><button class="btn ghost sm" onclick="plIr(${b.id})">${plVerbo(b)}</button></div>`;
+    h += `<div class="row" style="margin-top:10px">
+      <button class="btn ghost sm" onclick="plIr(${b.id})">${plVerbo(b)}</button>
+      ${libre?`<button class="btn ghost sm" onclick="plTest(${b.id})">Test</button>`:`<span class="pl-lock" style="margin:0">Bloqueado</span>`}
+    </div>`;
   }
   h += `</div>`;
   if(done) h += `<div style="color:var(--ok);font-size:20px;flex:0 0 auto">✓</div>`;
+  else if(!libre) h += `<div style="color:var(--tinta3);font-size:17px;flex:0 0 auto">🔒</div>`;
   return h + `</div>`;
 }
 
 function plVerbo(b){
   const k = b.a.k;
-  if(k==="test") return "Hacer el test";
   if(k==="baliz" || k==="luces") return "Abrir el entrenador";
   if(k==="taller") return "Ir al taller";
-  if(k==="examen") return "Empezar el examen";
+  if(k==="examen") return "Abrir el simulador";
   if(k==="fallos") return "Repasar mis fallos";
+  if(k==="test")   return "Repasar la unidad";
   return "Abrir la lección";
 }
+
+/* ---------- candado: no se pasa sin superar el bloque anterior ---------- */
+function plDisp(id){
+  if(!PL.estricto) return true;
+  if(PL.hechos[id]) return true;
+  for(let k=1; k<id; k++){ if(!PL.hechos[k]) return false; }
+  return true;
+}
+function plActual(){
+  for(let k=1; k<=PLAN.length; k++){ if(!PL.hechos[k]) return PLAN[k-1]; }
+  return null;
+}
+
+/* ---------- la prueba del bloque ---------- */
+let PLPEND = null;   // bloque cuyo examen completo está en marcha
+
+function plTest(id){
+  const b = PLAN[id-1]; if(!b) return;
+  if(!plDisp(id)){
+    const a = plActual();
+    alert("Antes tienes que superar el bloque "+a.id+": "+a.t);
+    return;
+  }
+  PL.ult = id; savePL();
+  if(b.ev.examen){
+    PLPEND = id;
+    go("examen");
+    return;
+  }
+  go("tests");
+  startTema(b.ev.ut||0, b.ev.n||10);
+  S.plan = id;
+}
+
+function plRegistrar(id, qs, ans, modo){
+  const b = PLAN[id-1]; if(!b) return;
+  const n = qs.length;
+  const ok = qs.reduce((s,q,k)=>s+(ans[k]===q.r?1:0),0);
+  const pc = n ? Math.round(ok/n*100) : 0;
+  let sup;
+  if(b.ev.examen) sup = !!corregir(qs, ans, "per").apto;
+  else            sup = pc >= b.ev.meta;
+
+  const prev = PL.notas[id];
+  PL.notas[id] = {ok:ok, n:n, pc:pc, sup:sup, f:fkey(plHoy()), int:(prev?prev.int:0)+1};
+  if(sup) PL.hechos[id] = fkey(plHoy());
+  savePL();
+
+  // aviso encima del resultado
+  const sig = PLAN[id] || null;
+  const box = sup
+    ? `<div class="panel" style="border-left:5px solid var(--ok)">
+         <b style="font-family:var(--serif);font-size:19px">Bloque ${id} superado</b>
+         <p style="font-size:13.5px;color:var(--tinta2);margin:6px 0 12px">
+           ${ok} de ${n} · ${pc} %${b.ev.examen?"":(" · el listón estaba en "+b.ev.meta+" %")}.
+           ${sig?("Se te abre el bloque "+sig.id+": "+sig.t+"."):"Has terminado el plan entero."}
+         </p>
+         <div class="row"><button class="btn mag" onclick="go('plan')">Volver al plan</button></div>
+       </div>`
+    : `<div class="panel" style="border-left:5px solid var(--mal)">
+         <b style="font-family:var(--serif);font-size:19px">Todavía no</b>
+         <p style="font-size:13.5px;color:var(--tinta2);margin:6px 0 12px">
+           ${ok} de ${n} · ${pc} %, y para dar el bloque por hecho hace falta ${b.ev.meta} %${b.ev.examen?"":""}.
+           Repasa la lección y vuelve a intentarlo: no avanzas hasta superarlo, y es justo eso lo que te va a aprobar el examen.
+         </p>
+         <div class="row">
+           <button class="btn mag" onclick="plIr(${id})">Repasar la lección</button>
+           <button class="btn ghost" onclick="plTest(${id})">Repetir el test</button>
+         </div>
+       </div>`;
+  const rb = $("#resbody");
+  if(rb) rb.insertAdjacentHTML("afterbegin", box);
+}
+
+/* se engancha al final de cualquier prueba del aula */
+const plEndRunOrig = endRun;
+endRun = function(auto){
+  const id  = (S && S.plan) ? S.plan : ((S && S.modo==="examen") ? PLPEND : null);
+  const qs  = (S && S.items) ? S.items.map(x=>Q[x]) : [];
+  const ans = (S && S.ans) ? S.ans.slice() : [];
+  const modo = S ? S.modo : null;
+  plEndRunOrig(auto);
+  if(id){ PLPEND = null; try{ plRegistrar(id, qs, ans, modo); }catch(e){} }
+};
 
 /* ---------- acciones ---------- */
 function plIr(id){
   const b = PLAN[id-1]; if(!b) return;
   const a = b.a; PL.ult = id; savePL();
   if(a.k==="ficha"){ ficha(a.ut); return; }
-  if(a.k==="test"){ go("tests"); startTema(a.ut||0, a.n||20); return; }
+  if(a.k==="test"){ if(a.ut) ficha(a.ut); else go("temario"); return; }
   if(a.k==="fallos"){ go("tests"); const f=$("#t-fallos"); if(f) f.click(); return; }
   if(a.k==="baliz"){ go("baliz"); const s=$("#bz-start"); if(s) s.click(); return; }
   if(a.k==="luces"){ go("luces"); return; }
@@ -2640,6 +2775,9 @@ function plMarcar(id){
   if(PL.hechos[id]) delete PL.hechos[id];
   else PL.hechos[id] = fkey(plHoy());
   savePL(); paintPlan();
+}
+function plEstricto(){
+  PL.estricto = !PL.estricto; savePL(); paintPlan();
 }
 function plDia(d){
   const i = PL.desc.indexOf(d);
