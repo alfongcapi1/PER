@@ -155,6 +155,41 @@ button.btn.sm{padding:7px 12px;font-size:13.5px}
 .pills button.cur{border-color:var(--tinta);border-width:2px;font-weight:700;color:var(--tinta)}
 .pills button.ok{background:#DCEFE7;border-color:var(--ok);color:var(--ok)}
 .pills button.no{background:#F8DFE2;border-color:var(--mal);color:var(--mal)}
+/* ---------- plan de estudio ---------- */
+.pl-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:8px;margin-top:7px}
+.pl-opt{
+  text-align:left;padding:11px 13px;border:1px solid var(--veril);border-radius:5px;
+  background:var(--papel2);cursor:pointer;font:inherit;color:var(--tinta2);line-height:1.35;
+}
+.pl-opt b{display:block;font-family:var(--serif);font-size:18px;color:var(--tinta);margin-bottom:1px;font-weight:600}
+.pl-opt span{display:block;font-size:12px}
+.pl-opt:hover{border-color:var(--tinta3)}
+.pl-opt.cur{border-color:var(--magenta);border-width:2px;padding:10px 12px;background:var(--magenta-suave)}
+.pl-opt.cur b{color:var(--magenta)}
+.pl-days{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.pl-day{
+  padding:8px 15px;border:1px solid var(--veril);border-radius:99px;background:var(--papel2);
+  cursor:pointer;font:inherit;font-size:13.5px;color:var(--tinta2);white-space:nowrap;
+}
+.pl-day:hover{border-color:var(--tinta3)}
+.pl-day.on{background:var(--agua2);border-color:var(--tinta3);color:var(--tinta);font-weight:600}
+.pl-card{padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+.pl-card.done{background:var(--agua)}
+.pl-fecha{text-align:center;min-width:50px;border-right:1px solid var(--veril);padding-right:12px;flex:0 0 auto}
+.pl-fecha .d{font-family:var(--serif);font-size:22px;line-height:1}
+.pl-fecha .m{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--tinta2)}
+.pl-fecha .w{font-size:10px;color:var(--tinta3)}
+.pl-meta{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--tinta2);margin-bottom:4px;line-height:1.5}
+.pl-tit{font-family:var(--serif);font-size:19px;line-height:1.25}
+.pl-obj{margin:9px 0 0;padding-left:18px;font-size:13.5px;color:var(--tinta2)}
+.pl-h3{font-family:var(--serif);font-size:22px;margin:28px 0 12px;font-weight:600}
+.pl-fase{text-align:left;cursor:pointer;width:100%}
+@media (max-width:520px){
+  .pl-card{padding:14px;gap:11px}
+  .pl-tit{font-size:17px}
+  .pl-fecha{min-width:42px;padding-right:9px}
+  .pl-opts{grid-template-columns:1fr 1fr}
+}
 /* ---------- cronómetro ---------- */
 .clock{font-family:var(--serif);font-size:17px;font-variant-numeric:tabular-nums}
 .clock.warn{color:var(--magenta)}
@@ -511,6 +546,13 @@ ul.tight li{margin-bottom:6px;font-size:15px}
 </section>
 
 <!-- ================= PROGRESO ================= -->
+<!-- ================= PLAN DE ESTUDIO ================= -->
+<section class="view" id="v-plan">
+  <h2 class="title">Mi plan de estudio</h2>
+  <p class="sub">El temario completo repartido en bloques cortos de media hora, uno al día, con descanso los días que elijas. Cada bloque te lleva directo a la lección, al test o al entrenador que toca.</p>
+  <div id="pl-body"></div>
+</section>
+
 <section class="view" id="v-progreso">
   <h2 class="title">Mi progreso</h2>
   <p class="sub">Aciertos acumulados por unidad y resultado de los exámenes que has simulado.</p>
@@ -1232,6 +1274,7 @@ function byUt(n){ return Q.filter(x=>x.ut===n); }
    NAVEGACIÓN
    ============================================================ */
 const MENU = [
+  {id:"plan", t:"Mi plan de estudio", ic:"M7 3v4M17 3v4M4 9h16M5 5h14v16H5z"},
   {id:"inicio", t:"Inicio", ic:"M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"},
   {sep:"Estudiar"},
   {id:"temario", t:"Temario", ic:"M4 4h11l5 5v11H4z"},
@@ -1263,6 +1306,7 @@ function go(v){
   try{window.scrollTo(0,0);}catch(e){}
   if(v==="inicio") paintInicio();
   if(v==="progreso") paintProgreso();
+  if(v==="plan") paintPlan();
 }
 document.addEventListener("click",e=>{
   const b = e.target.closest("[data-go]");
@@ -2163,7 +2207,478 @@ $("#r-quit").onclick = ()=>{ if(S.timer) clearInterval(S.timer); go(S.modo==="ex
 $("#p-new").onclick = nuevoProblema;
 $("#bz-start").onclick = bzNext;
 $("#sit-new").onclick = sitNext;
+
+/* ============================================================
+   PLAN DE ESTUDIO · microsesiones de 25-30 minutos
+   Cada bloque lleva a la lección correspondiente del aula.
+   ============================================================ */
+
+/* a: acción -> {k:"ficha"|"test"|"baliz"|"luces"|"taller"|"examen"|"fallos", ut, n} */
+const PLAN = [
+/* --- FASE 1 · Vocabulario y base --- */
+{f:1,u:1,m:25,t:"El casco y sus dimensiones",o:["Buque, embarcación y buque de recreo.","Eslora total y de flotación, manga, puntal, calado, francobordo.","Proa, popa, babor, estribor, amuras, aletas, través."],a:{k:"ficha",ut:1}},
+{f:1,u:1,m:25,t:"Estructura, cubierta, timón y hélice",o:["Quilla, roda, codaste, cuadernas, baos, mamparos.","Obra viva y obra muerta, desplazamiento y arqueo.","Timón y hélice: partes y efecto del paso."],a:{k:"ficha",ut:1}},
+{f:1,u:1,m:25,t:"Test de nomenclatura náutica",o:["15 preguntas de la unidad 1 con corrección al momento.","Anota en el aula cada fallo: se te guarda para repasarlo."],a:{k:"test",ut:1,n:15}},
+{f:1,u:2,m:25,t:"Cabos, nudos y amarras",o:["Firme, chicote y seno; materiales y mantenimiento.","As de guía, ballestrinque, cote, llano, vuelta mordida.","Largos, través y esprines; bitas, cornamusas y defensas."],a:{k:"ficha",ut:2}},
+{f:1,u:2,m:25,t:"Ancla, cadena y maniobra de fondeo",o:["Caña, cepo, brazos, uñas, arganeo; Danforth, arado y rezón.","Cadena, grilletes, orinque, molinete y estopor.","Longitud de fondeo, tenedero, garreo y círculo de borneo."],a:{k:"ficha",ut:2}},
+{f:1,u:2,m:20,t:"Test de amarre y fondeo",o:["12 preguntas de la unidad 2.","Si fallas algún nudo, dibújalo antes de seguir."],a:{k:"test",ut:2,n:12}},
+{f:1,u:3,m:30,t:"Estabilidad, estanqueidad y navegabilidad",o:["Condiciones de navegabilidad; grifos de fondo y bocinas.","Centro de gravedad, empuje y par de adrizamiento.","Francobordo, reserva de flotabilidad y achique."],a:{k:"ficha",ut:3}},
+{f:1,u:3,m:30,t:"Material de seguridad e incendios",o:["Material exigible por zona de navegación (1 a 7).","Chalecos, aros, balsa, arnés y señales pirotécnicas.","Triángulo del fuego, clases de fuego y agentes extintores."],a:{k:"ficha",ut:3}},
+{f:1,u:3,m:25,t:"Test de seguridad en la mar",o:["15 preguntas de la unidad 3.","Presta atención a las cifras del material reglamentario."],a:{k:"test",ut:3,n:15}},
+{f:1,u:4,m:25,t:"Legislación: atribuciones, listas y zonas",o:["Atribuciones del PER: 12 millas y 15 metros; ampliaciones.","Listas 1 a 8, abanderamiento y despacho.","Zonas de navegación, limitaciones de baño, 3 nudos y MARPOL."],a:{k:"ficha",ut:4}},
+{f:1,u:4,m:20,t:"Test de legislación",o:["12 preguntas de la unidad 4.","Son pocas preguntas en el examen pero se aciertan casi todas."],a:{k:"test",ut:4,n:12}},
+/* --- FASE 2 · Balizamiento --- */
+{f:2,u:5,m:25,t:"Sistema IALA y marcas laterales",o:["Región A y sentido convencional de balizamiento.","Babor: roja, cilíndrica, tope cilíndrico rojo, luz roja.","Estribor: verde, cónica, tope cónico verde, luz verde."],a:{k:"ficha",ut:5}},
+{f:2,u:5,m:25,t:"Entrenador: marcas laterales",o:["Practica solo laterales hasta reconocerlas sin pensar.","Fíjate en la forma, no solo en el color."],a:{k:"baliz"}},
+{f:2,u:5,m:30,t:"Marcas cardinales: la regla del reloj",o:["Norte: conos arriba, negro sobre amarillo, Q o VQ continuo.","Este: base con base, Q(3) 10 s. Sur: conos abajo, Q(6)+largo 15 s.","Oeste: vértice con vértice (copa), Q(9) 15 s."],a:{k:"ficha",ut:5}},
+{f:2,u:5,m:30,t:"Entrenador: cardinales",o:["Sesión de cardinales hasta acertar diez seguidas.","Si dudas, reconstruye mentalmente la esfera del reloj."],a:{k:"baliz"}},
+{f:2,u:5,m:25,t:"Entrenador: cardinales, segunda pasada",o:["Repite el entrenador un día después: es lo que fija la memoria.","Objetivo: cero fallos."],a:{k:"baliz"}},
+{f:2,u:5,m:30,t:"Peligro aislado, aguas navegables y especiales",o:["Peligro aislado: negra con franja roja, dos esferas, Gp D(2).","Aguas navegables: franjas verticales, esfera roja, Morse A.","Especiales: amarillas con aspa. Nuevos peligros y racón D."],a:{k:"ficha",ut:5}},
+{f:2,u:5,m:25,t:"Entrenador: marcas no laterales",o:["Mezcla peligro aislado, aguas navegables y especiales.","Repasa también las de nuevo peligro."],a:{k:"baliz"}},
+{f:2,u:5,m:30,t:"Características de las luces",o:["Fija, destellos, grupos, centelleos, isofase, ocultaciones.","Periodo, fase, alcance nominal y luminoso.","Leer la abreviatura de un faro tal y como viene en la carta."],a:{k:"ficha",ut:5}},
+{f:2,u:5,m:30,t:"Test de balizamiento",o:["20 preguntas de la unidad 5 sin mirar apuntes.","En el examen solo se permiten 2 errores de 5."],a:{k:"test",ut:5,n:20}},
+{f:2,u:5,m:30,t:"Balizamiento: repaso de fallos",o:["Repasa en el aula solo las preguntas que llevas falladas.","No pases de aquí hasta dejarlas a cero."],a:{k:"fallos"}},
+/* --- FASE 3 · RIPA --- */
+{f:3,u:6,m:25,t:"RIPA parte A: ámbito y definiciones",o:["Regla 1 ámbito, regla 2 responsabilidad.","Regla 3: definiciones de buque, a la vista, visibilidad reducida."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:30,t:"Reglas 5 a 7: vigilancia, velocidad y riesgo",o:["Vigilancia por todos los medios disponibles.","Velocidad de seguridad y factores que la determinan.","Riesgo de abordaje: demora que no varía."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:30,t:"Reglas 8 a 10: maniobras, canales y DST",o:["Maniobras claras, amplias y con tiempo suficiente.","Canales angostos: navegar por estribor, buques de menos de 20 m.","Dispositivos de separación de tráfico."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:25,t:"Test RIPA: reglas 1 a 10",o:["15 preguntas centradas en la parte de conducta general."],a:{k:"test",ut:6,n:15}},
+{f:3,u:6,m:30,t:"Reglas 13 y 14: alcance y vuelta encontrada",o:["El que alcanza se aparta siempre, sea cual sea su tipo.","Más de 22,5° a popa del través define el alcance.","Vuelta encontrada: ambos caen a estribor."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:30,t:"Reglas 15 a 17: cruce y conducta",o:["Cede el que ve al otro por su costado de estribor.","Obligaciones del buque que cede el paso.","Buque que sigue a rumbo: cuándo puede y debe maniobrar."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:25,t:"Regla 12: buques de vela entre sí",o:["Amuras distintas: cede el amurado a babor.","Misma amura: cede el de barlovento.","Caso de duda con un buque a sotavento."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:30,t:"Regla 18: preferencias entre categorías",o:["Orden completo: sin gobierno, maniobra restringida, pesca, vela, motor.","Buque restringido por su calado y su lugar en el orden.","Reconstruye la lista de memoria antes de terminar."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:25,t:"Regla 19: visibilidad reducida",o:["Velocidad, máquinas listas, detección solo por radar.","Maniobras que la regla prohíbe expresamente.","Señal de niebla a proa del través: arrancada mínima."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:30,t:"Test RIPA: reglas de rumbo y gobierno",o:["20 preguntas de conducta, cruce, alcance y visibilidad reducida."],a:{k:"test",ut:6,n:20}},
+{f:3,u:6,m:30,t:"Luces: sectores y alcances (reglas 20 a 22)",o:["Tope 225°, costados 112,5°, alcance 135°.","Alcances mínimos según la eslora del buque.","Cuándo se encienden y qué luces pueden sustituirse."],a:{k:"luces"}},
+{f:3,u:6,m:30,t:"Entrenador: propulsión mecánica y remolque",o:["Regla 23: motor en navegación, embarcaciones menores.","Regla 24: remolcando y empujando, remolques de más de 200 m."],a:{k:"luces"}},
+{f:3,u:6,m:30,t:"Entrenador: vela, remo y pesca",o:["Regla 25: tricolor, bicolor y cono invertido con motor.","Regla 26: arrastre verde sobre blanca; otras artes roja sobre blanca."],a:{k:"luces"}},
+{f:3,u:6,m:30,t:"Entrenador: sin gobierno, restringido y calado",o:["Regla 27: dos rojas / rojo-blanco-rojo; esfera-bicono-esfera.","Regla 28: tres rojas y cilindro negro."],a:{k:"luces"}},
+{f:3,u:6,m:25,t:"Luces: práctico, fondeados y varados",o:["Regla 29: práctico, blanca sobre roja.","Regla 30: fondeado y varado, bolas y luces según eslora."],a:{k:"luces"}},
+{f:3,u:6,m:30,t:"Señales acústicas, luminosas y de socorro",o:["1 corta estribor, 2 babor, 3 atrás; 5 cortas de duda.","Regla 35: con arrancada, sin arrancada y fondeado.","Anexo IV: MAYDAY, bengalas, bandera NC, humo naranja."],a:{k:"ficha",ut:6}},
+{f:3,u:6,m:35,t:"Test RIPA completo",o:["25 preguntas mezclando conducta, luces y señales.","En el examen solo se permiten 5 errores de 10."],a:{k:"test",ut:6,n:25}},
+/* --- FASE 4 · Navegación y mar --- */
+{f:4,u:7,m:25,t:"Hélice, timón y evolución",o:["Paso a la derecha o a la izquierda y efecto evolutivo.","Curva de evolución, avance y traslado.","Efecto del viento y la corriente con la embarcación parada."],a:{k:"ficha",ut:7}},
+{f:4,u:7,m:30,t:"Atraque, fondeo, remolque y mal tiempo",o:["Atraque y desatraque de punta y de costado; uso del esprín.","Navegación con mal tiempo: capear y correr.","Dar y tomar remolque con seguridad."],a:{k:"ficha",ut:7}},
+{f:4,u:7,m:20,t:"Test de maniobra",o:["12 preguntas de la unidad 7."],a:{k:"test",ut:7,n:12}},
+{f:4,u:8,m:30,t:"Varada, vía de agua, incendio y abandono",o:["Varada: comprobaciones y reflotamiento con la marea.","Vía de agua: taponamiento y achique.","Incendio según su origen; cuándo se abandona."],a:{k:"ficha",ut:8}},
+{f:4,u:8,m:30,t:"Socorro, radio y primeros auxilios",o:["MAYDAY, PAN PAN y SÉCURITÉ; canal 16 y 112.","Salvamento Marítimo, radiobalizas y respondedores.","Hipotermia, ahogamiento, mareo y quemaduras."],a:{k:"ficha",ut:8}},
+{f:4,u:8,m:20,t:"Test de emergencias",o:["12 preguntas de la unidad 8."],a:{k:"test",ut:8,n:12}},
+{f:4,u:9,m:25,t:"Presión, isobaras, borrascas y anticiclones",o:["Presión atmosférica y gradiente.","Circulación del viento alrededor de borrascas y anticiclones."],a:{k:"ficha",ut:9}},
+{f:4,u:9,m:25,t:"Frentes y nubosidad asociada",o:["Frente frío, cálido y ocluido.","Qué tiempo trae cada uno y en qué orden."],a:{k:"ficha",ut:9}},
+{f:4,u:9,m:25,t:"Viento, Beaufort, Douglas y estado de la mar",o:["Escala Beaufort y escala Douglas.","Mar de viento y mar de fondo; fetch y periodo.","Brisas de mar y de tierra; rolar y caer."],a:{k:"ficha",ut:9}},
+{f:4,u:9,m:30,t:"Nieblas, partes meteorológicos y mareas",o:["Niebla de advección y de radiación; punto de rocío.","Leer un parte y un mapa de isobaras.","Pleamar, bajamar, repunte, coeficiente y amplitud."],a:{k:"ficha",ut:9}},
+{f:4,u:9,m:30,t:"Test de meteorología",o:["20 preguntas de la unidad 9."],a:{k:"test",ut:9,n:20}},
+{f:4,u:10,m:30,t:"Coordenadas, milla y nudo",o:["Meridianos, paralelos, latitud y longitud.","Diferencia de latitud y de longitud.","La milla náutica es un minuto de latitud."],a:{k:"ficha",ut:10}},
+{f:4,u:10,m:30,t:"Rumbos, demoras y marcaciones",o:["Norte verdadero, magnético y de aguja.","Demora verdadera, de aguja y marcación.","Convertir marcación en demora con el rumbo."],a:{k:"ficha",ut:10}},
+{f:4,u:10,m:30,t:"Declinación, desvío y corrección total",o:["Declinación magnética y su corrección por años.","Desvío de la aguja y tablilla de desvíos.","Ct = dm + desvío; Rv = Ra + Ct."],a:{k:"ficha",ut:10}},
+{f:4,u:10,m:30,t:"Taller: ejercicios de corrección total",o:["Diez conversiones seguidas de rumbo y demora.","Hasta hacerlas sin dudar del signo."],a:{k:"taller"}},
+{f:4,u:10,m:30,t:"Cartas, estima, abatimiento y deriva",o:["Proyección Mercator, escalas, sondas y datum.","Navegación de estima; rumbo efectivo.","Abatimiento por viento y deriva por corriente."],a:{k:"ficha",ut:10}},
+{f:4,u:10,m:30,t:"Test de teoría de navegación",o:["20 preguntas de la unidad 10."],a:{k:"test",ut:10,n:20}},
+/* --- FASE 5 · Carta de navegación --- */
+{f:5,u:11,m:30,t:"La carta y la situación por coordenadas",o:["Material: compás de puntas, reglas, lápiz 2H y goma.","Estructura de la carta del Estrecho y sus rosas.","Situar un punto con precisión de décimas de minuto."],a:{k:"ficha",ut:11}},
+{f:5,u:11,m:30,t:"Taller: situaciones por latitud y longitud",o:["Seis puntos seguidos, midiendo siempre en la escala de latitud.","Comprueba cada uno antes de pasar al siguiente."],a:{k:"taller"}},
+{f:5,u:11,m:30,t:"Trazado de rumbos sobre la carta",o:["Unir dos puntos y medir el rumbo verdadero en la rosa.","Trasladar la regla sin perder el paralelismo."],a:{k:"ficha",ut:11}},
+{f:5,u:11,m:30,t:"Demoras y marcaciones en la carta",o:["Trazar una demora desde un punto notable.","Pasar de marcación a demora con el rumbo de la embarcación."],a:{k:"ficha",ut:11}},
+{f:5,u:11,m:30,t:"Taller: ejercicios de demoras",o:["Ocho demoras y marcaciones resueltas una detrás de otra."],a:{k:"taller"}},
+{f:5,u:11,m:30,t:"Situación por demoras simultáneas",o:["Dos y tres demoras; el triángulo de error.","Situación por demora y distancia, y por enfilación."],a:{k:"ficha",ut:11}},
+{f:5,u:11,m:30,t:"Taller: distancia, velocidad y tiempo",o:["d = v · t aplicado a la derrota trazada.","Hora estimada de llegada y consumo."],a:{k:"taller"}},
+{f:5,u:11,m:30,t:"Corrección total aplicada a la carta",o:["Pasar de rumbo de aguja a verdadero sobre la derrota real.","Errores de signo más frecuentes en el examen."],a:{k:"taller"}},
+{f:5,u:11,m:30,t:"Corriente y abatimiento en la carta",o:["Triángulo de corrientes: rumbo de superficie y efectivo.","Rumbo a gobernar para alcanzar un punto con corriente."],a:{k:"ficha",ut:11}},
+{f:5,u:11,m:30,t:"Taller: sonda, marea y calado",o:["Reducción de la sonda al cero hidrográfico.","¿Puedo pasar sobre el bajo a esa hora? Resuélvelo tres veces."],a:{k:"taller"}},
+{f:5,u:11,m:35,t:"Ejercicio oficial de carta nº 1",o:["Cuatro preguntas de una convocatoria real, cronometradas.","Máximo 30 minutos. Se permiten 2 errores de 4."],a:{k:"taller"}},
+{f:5,u:11,m:35,t:"Ejercicio oficial de carta nº 2",o:["Otra convocatoria distinta.","Fija ya tu rutina de resolución para el día del examen."],a:{k:"taller"}},
+/* --- FASE 6 · Consolidación y simulacros --- */
+{f:6,u:0,m:30,t:"Repaso general de las unidades 1 a 4",o:["Test mixto de las cuatro primeras unidades.","Son 12 preguntas del examen: hay que llevarlas regaladas."],a:{k:"test",ut:0,n:25}},
+{f:6,u:5,m:30,t:"Balizamiento a cero fallos",o:["Entrenador completo hasta no fallar ninguna.","Es el bloque con el cupo de errores más estrecho."],a:{k:"baliz"}},
+{f:6,u:6,m:35,t:"RIPA de repaso",o:["25 preguntas mezclando conducta y luces."],a:{k:"test",ut:6,n:25}},
+{f:6,u:0,m:90,t:"Simulacro oficial nº 1",sim:true,o:["Examen completo de 45 preguntas con reloj de 90 minutos.","Sin apuntes, sin pausas y de una sentada.","Necesitas 90 minutos seguidos: reserva bien el hueco."],a:{k:"examen"}},
+{f:6,u:0,m:30,t:"Corrección razonada del simulacro 1",o:["Repasa cada fallo y escribe por qué era la otra opción.","Mira en qué unidades se concentran."],a:{k:"fallos"}},
+{f:6,u:0,m:30,t:"Refuerzo de los fallos acumulados",o:["Repasa en el aula solo tus preguntas falladas."],a:{k:"fallos"}},
+{f:6,u:0,m:90,t:"Simulacro oficial nº 2",sim:true,o:["Segundo examen completo, con reloj.","Compara los errores por unidad con los del primero."],a:{k:"examen"}},
+{f:6,u:0,m:30,t:"Corrección razonada del simulacro 2",o:["Mismo método: explicar cada fallo, no solo corregirlo."],a:{k:"fallos"}},
+{f:6,u:6,m:30,t:"Luces y marcas a cero fallos",o:["Entrenador de luces hasta acertarlas todas seguidas."],a:{k:"luces"}},
+{f:6,u:0,m:90,t:"Simulacro oficial nº 3",sim:true,o:["Tercer examen completo.","Objetivo: 38 aciertos o más y cero errores en balizamiento."],a:{k:"examen"}},
+{f:6,u:11,m:30,t:"Carta cronometrada de mantenimiento",o:["Un ejercicio de carta completo para no perder la mano."],a:{k:"taller"}},
+{f:6,u:0,m:90,t:"Simulacro oficial nº 4",sim:true,o:["Cuarto examen completo.","Revisa después si queda alguna unidad por debajo del 85 %."],a:{k:"examen"}},
+{f:6,u:0,m:30,t:"Repaso final de fallos",o:["Última pasada a todas las preguntas falladas del curso.","Si alguna sigue resistiéndose, apúntala en una tarjeta."],a:{k:"fallos"}},
+{f:6,u:0,m:90,t:"Simulacro nº 5 en condiciones reales",sim:true,o:["A la misma hora prevista para el examen oficial.","Si sale apto y los dos anteriores también, estás listo."],a:{k:"examen"}},
+{f:6,u:0,m:25,t:"Víspera: material y repaso ligero",o:["DNI, convocatoria, compás, reglas, lápiz, goma y calculadora.","Comprueba dirección y hora de la sede.","Repaso suave de balizamiento. Nada de materia nueva."],a:{k:"baliz"}}
+];
+PLAN.forEach((b,i)=>b.id=i+1);
+
+const FASE = {
+  1:"Vocabulario y base", 2:"Balizamiento", 3:"Reglamento RIPA",
+  4:"Navegación y mar", 5:"Carta de navegación", 6:"Simulacros"
+};
+
+/* ---------- estado ---------- */
+function fkey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function fpar(s){ const p=String(s).split("-"); return new Date(+p[0],+p[1]-1,+p[2]); }
+function fadd(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function fdif(a,b){ return Math.round((b-a)/86400000); }
+const PLMES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const PLMESC=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const PLDIA=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const PLDIAC=["dom","lun","mar","mié","jue","vie","sáb"];
+function flarga(d){ return PLDIA[d.getDay()]+" "+d.getDate()+" de "+PLMES[d.getMonth()]; }
+function fcorta(d){ return d.getDate()+" de "+PLMES[d.getMonth()]+(d.getFullYear()!==new Date().getFullYear()?(" de "+d.getFullYear()):""); }
+function plural(n,s,p){ return n+" "+(n===1?s:p); }
+function hhmm(m){ const h=Math.floor(m/60), r=m%60; return h?(h+" h"+(r?" "+r+" min":"")):(r+" min"); }
+
+let PL = Store.get("per.plan", null) || {};
+PL = Object.assign({ini:null, desde:null, bd:1, desc:[5,6], hechos:{}, examen:null}, PL);
+if(!PL.ini) PL.ini = fkey(new Date());
+if(!PL.desde) PL.desde = PL.ini;
+function savePL(){ Store.set("per.plan", PL); }
+function plHoy(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+
+/* ---------- reparto ----------
+   Los bloques hechos se quedan con la fecha real en la que se hicieron.
+   Los pendientes se reparten desde PL.desde: si te retrasas, se van
+   quedando en el pasado y aparecen como atrasados hasta que reprogrames. */
+function plCal(bd, desde){
+  bd = bd || PL.bd;
+  const base = fpar(desde || PL.desde);
+  const pend = PLAN.filter(b=>!PL.hechos[b.id]);
+  PLAN.forEach(b=>{ b.fecha = PL.hechos[b.id] || null; });
+  const mapa = {};
+  let i = 0, d = new Date(base), g = 0;
+  while(i < pend.length && g++ < 4000){
+    if(PL.desc.indexOf(d.getDay()) === -1){
+      const hueco = []; let cupo = bd;
+      while(cupo > 0 && i < pend.length){
+        const b = pend[i];
+        if(b.sim && hueco.length) break;      // el simulacro ocupa el día entero
+        hueco.push(b); b.fecha = fkey(d); i++;
+        if(b.sim) cupo = 0; else cupo--;
+      }
+      if(hueco.length) mapa[fkey(d)] = hueco;
+    }
+    d = fadd(d,1);
+  }
+  const fin = pend.length ? fpar(pend[pend.length-1].fecha) : plHoy();
+  return {mapa, pend, fin};
+}
+
+/* ---------- diagnóstico ---------- */
+function plDiag(){
+  const hoy = plHoy();
+  const C = plCal();
+  const hechos = Object.keys(PL.hechos);
+  const atras = C.pend.filter(b => b.fecha && fpar(b.fecha) < hoy);
+  const minAtras = atras.reduce((s,b)=>s+b.m,0);
+
+  // días desde el último bloque marcado
+  let ultima = null;
+  hechos.forEach(id=>{ const f = PL.hechos[id]; if(!ultima || f > ultima) ultima = f; });
+  const sinAct = ultima ? fdif(fpar(ultima), hoy) : fdif(fpar(PL.ini), hoy);
+
+  // racha de días lectivos consecutivos cumplidos, hacia atrás
+  let racha = 0, d = new Date(hoy);
+  for(let k=0; k<200; k++){
+    if(PL.desc.indexOf(d.getDay()) === -1){
+      const kk = fkey(d);
+      const hechoEse = hechos.some(id => PL.hechos[id] === kk);
+      if(hechoEse) racha++;
+      else if(fdif(d,hoy) !== 0) break;      // hoy todavía cuenta como vivo
+    }
+    d = fadd(d,-1);
+  }
+
+  // cumplimiento: bloques que deberías llevar a estas alturas
+  let debidos = 0, dd = fpar(PL.ini);
+  while(dd <= hoy && debidos < PLAN.length){
+    if(PL.desc.indexOf(dd.getDay()) === -1) debidos += PL.bd;
+    dd = fadd(dd,1);
+  }
+  debidos = Math.min(debidos, PLAN.length);
+  const cumpl = debidos ? Math.round(hechos.length/debidos*100) : 100;
+
+  // fecha de examen: ¿llego?
+  let exOk = null, bdNec = null, diasEx = null;
+  if(PL.examen){
+    const ex = fpar(PL.examen);
+    diasEx = fdif(hoy, ex);
+    exOk = C.fin <= fadd(ex,-2);
+    for(let n=1; n<=6; n++){
+      if(plCal(n, fkey(hoy)).fin <= fadd(ex,-2)){ bdNec = n; break; }
+    }
+  }
+  return {C, atras, minAtras, sinAct, racha, cumpl, debidos, hechos:hechos.length, exOk, bdNec, diasEx, ultima};
+}
+
+/* ---------- pintado ---------- */
+function paintPlan(){
+  const D = plDiag(), C = D.C, hoy = plHoy();
+  const total = PLAN.length, pc = Math.round(D.hechos/total*100);
+  const hoyB = C.mapa[fkey(hoy)] || [];
+  const teor = PLAN.filter(b=>!b.sim);
+  const medio = Math.round(teor.reduce((s,b)=>s+b.m,0)/teor.length);
+
+  let h = "";
+
+  /* ---- avisos ---- */
+  h += plAvisos(D);
+
+  /* ---- estado ---- */
+  h += `<div class="panel" style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">
+    <div style="flex:1;min-width:230px">
+      <h3 style="margin:0 0 4px">${D.hechos} de ${total} bloques completados</h3>
+      <div class="bar" style="height:8px"><i style="width:${pc}%"></i></div>
+      <p style="font-size:13px;color:var(--tinta2);margin:8px 0 0">
+        Bloques de ${medio} min de media · ${plural(PL.bd,"bloque","bloques")} al día ·
+        descansas ${PL.desc.map(x=>PLDIA[x]).join(" y ")} ·
+        ${D.racha?("racha de "+plural(D.racha,"día","días")):"sin racha"} ·
+        acabas el <b>${fcorta(C.fin)}</b>
+      </p>
+    </div>
+    <div style="text-align:right">
+      <div style="font-family:var(--serif);font-size:44px;line-height:1;color:var(--magenta)">${pc}<span style="font-size:20px"> %</span></div>
+      <div style="font-size:12px;color:var(--tinta2)">cumplimiento ${D.cumpl} %</div>
+    </div>
+  </div>`;
+
+  /* ---- atrasados ---- */
+  if(D.atras.length){
+    h += `<div class="panel" style="border:2px solid var(--amar)">
+      <h3 style="margin:0 0 6px;font-family:var(--serif);font-size:20px">Recuperar · ${plural(D.atras.length,"bloque","bloques")} pendientes</h3>
+      <p style="font-size:13.5px;color:var(--tinta2);margin:0 0 14px">
+        Son ${hhmm(D.minAtras)} de trabajo. Puedes hacerlos hoy además de lo de hoy, repartirlos en los próximos días, o correr el plan y seguir desde cero sin arrastrar nada.
+      </p>
+      <div class="row">
+        <button class="btn mag" onclick="plCorrer()">Correr el plan y empezar hoy</button>
+        <button class="btn ghost" onclick="plRepartir()">Repartirlos en los próximos días</button>
+      </div>
+      <p style="font-size:12.5px;color:var(--tinta3);margin:12px 0 0">
+        Correr el plan mueve el final al ${fcorta(plCal(PL.bd, fkey(hoy)).fin)} y deja los pendientes por delante.
+        Repartirlos sube a ${plural(PL.bd+1,"bloque","bloques")} al día hasta ponerte al día.
+      </p>
+      <div style="margin-top:16px">${D.atras.slice(0,4).map(b=>plBloque(b,false)).join("")}</div>
+      ${D.atras.length>4?`<p style="font-size:12.5px;color:var(--tinta2);margin:4px 0 0">Y ${D.atras.length-4} más.</p>`:""}
+    </div>`;
+  }
+
+  /* ---- hoy ---- */
+  h += `<h3 class="pl-h3">Hoy · ${flarga(hoy)}</h3>`;
+  if(!hoyB.length){
+    const prox = C.pend.find(b=>b.fecha && fpar(b.fecha) > hoy);
+    h += `<div class="panel"><p style="margin:0">${D.atras.length?"Hoy no tocaba nada nuevo, pero tienes bloques pendientes ahí arriba.":"Hoy toca descansar."} ${prox?("El siguiente bloque es el "+flarga(fpar(prox.fecha))+"."):""}</p></div>`;
+  } else {
+    hoyB.forEach(b=> h += plBloque(b, true));
+  }
+
+  /* ---- próximos ---- */
+  const prox = C.pend.filter(b=>b.fecha && fpar(b.fecha) > hoy).slice(0,4);
+  if(prox.length){
+    h += `<h3 class="pl-h3" style="font-size:20px">Lo que viene</h3>`;
+    prox.forEach(b=> h += plBloque(b, false, true));
+  }
+
+  /* ---- fases ---- */
+  h += `<h3 class="pl-h3">El plan completo</h3><div class="grid g2">`;
+  Object.keys(FASE).forEach(f=>{
+    const bs = PLAN.filter(b=>b.f===+f);
+    const dn = bs.filter(b=>PL.hechos[b.id]).length;
+    const p = Math.round(dn/bs.length*100);
+    const mins = bs.reduce((s,b)=>s+b.m,0);
+    h += `<button class="panel pl-fase" style="border:1px solid var(--veril)" onclick="plFase(${f})">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <b style="font-family:var(--serif);font-size:18px">Fase ${f} · ${FASE[f]}</b>
+        <span style="font-size:12.5px;color:var(--tinta2)">${dn}/${bs.length}</span>
+      </div>
+      <div class="bar" style="margin-top:10px"><i style="width:${p}%"></i></div>
+      <p style="font-size:12.5px;color:var(--tinta2);margin:8px 0 0">${bs.length} bloques · ${Math.round(mins/60)} h</p>
+    </button>`;
+  });
+  h += `</div><div id="pl-fase" style="margin-top:18px"></div>`;
+
+  /* ---- ritmo y fechas ---- */
+  h += plRitmo(D);
+  $("#pl-body").innerHTML = h;
+}
+
+/* ---------- avisos ---------- */
+function plAvisos(D){
+  const hoy = plHoy();
+  let h = "";
+  const av = (color,titulo,texto,botones)=>`<div class="panel" style="border-left:5px solid ${color};margin-bottom:14px">
+      <b style="font-family:var(--serif);font-size:18px">${titulo}</b>
+      <p style="font-size:13.5px;color:var(--tinta2);margin:6px 0 ${botones?"12px":"0"}">${texto}</p>${botones||""}</div>`;
+
+  if(D.sinAct >= 2 && D.hechos < PLAN.length){
+    const txt = D.ultima
+      ? `Tu último bloque fue el ${fcorta(fpar(D.ultima))}. ${D.atras.length?("Se te han acumulado "+plural(D.atras.length,"bloque","bloques")+", "+hhmm(D.minAtras)+"."):""}`
+      : `Aún no has marcado ningún bloque desde que empezaste el plan.`;
+    h += av("var(--mal)", "Llevas "+plural(D.sinAct,"día","días")+" sin estudiar", txt+" Retomarlo hoy con un solo bloque de media hora ya rompe la inercia.");
+  } else if(D.sinAct === 1 && D.atras.length){
+    h += av("var(--amar)", "Ayer no marcaste nada", `Tienes ${plural(D.atras.length,"bloque","bloques")} sin hacer. Con juntar dos hoy te pones al día.`);
+  }
+
+  if(D.cumpl < 70 && D.debidos >= 4){
+    h += av("var(--amar)", "Vas por debajo del ritmo previsto",
+      `A estas alturas deberías llevar ${D.debidos} bloques y llevas ${D.hechos}: un cumplimiento del ${D.cumpl} %. O recuperas, o conviene mover la fecha del examen para no llegar con el temario a medias.`);
+  }
+
+  if(PL.examen && D.exOk === false){
+    const ex = fpar(PL.examen);
+    h += av("var(--mal)", "No llegas al examen del "+fcorta(ex),
+      `Al ritmo actual terminarías el ${fcorta(D.C.fin)}, después de la fecha. ${D.bdNec?("Harían falta "+plural(D.bdNec,"bloque","bloques")+" al día empezando hoy."):"Ni siquiera a seis bloques diarios daría tiempo: conviene buscar una convocatoria posterior."}`,
+      D.bdNec?`<div class="row"><button class="btn mag" onclick="plAjustar(${D.bdNec})">Ajustar a ${plural(D.bdNec,"bloque","bloques")} al día</button></div>`:"");
+  } else if(PL.examen && D.exOk === true && D.diasEx >= 0){
+    h += av("var(--ok)", "Llegas al examen del "+fcorta(fpar(PL.examen)),
+      `Terminas el ${fcorta(D.C.fin)}, con ${plural(fdif(D.C.fin, fpar(PL.examen)),"día","días")} de margen. Quedan ${plural(D.diasEx,"día","días")}.`);
+  }
+
+  // avisos de materia floja sobre los datos reales del aula
+  const flojas = [];
+  [5,6,11].forEach(n=>{
+    const bs = PLAN.filter(b=>b.u===n);
+    const dn = bs.filter(b=>PL.hechos[b.id]).length;
+    const s = ST.stats[n] || {ok:0,ko:0}, a = s.ok+s.ko;
+    const umbral = n===5?90:(n===6?85:85);
+    if(dn >= Math.ceil(bs.length*0.6) && a >= 15 && Math.round(s.ok/a*100) < umbral){
+      flojas.push(UT.find(u=>u.n===n).t+" ("+Math.round(s.ok/a*100)+" %)");
+    }
+  });
+  if(flojas.length){
+    h += av("var(--amar)", "Materia eliminatoria por debajo de su umbral",
+      `Has hecho los bloques, pero tus aciertos en ${flojas.join(" y ")} no dan para el cupo de errores del examen. Vuelve al entrenador antes de seguir avanzando.`);
+  }
+  return h;
+}
+
+/* ---------- ritmo y fechas ---------- */
+function plRitmo(D){
+  const hoy = plHoy();
+  const sim = [1,2,3,4].map(n=>({n, f:plCal(n, fkey(hoy)).fin}));
+  return `<h3 class="pl-h3">Ritmo y fechas</h3>
+  <div class="panel">
+    <div class="grid g2" style="align-items:end">
+      <div><label class="fld" for="pl-ini">Empecé el</label><input class="in" id="pl-ini" type="date" value="${PL.ini}"></div>
+      <div><label class="fld" for="pl-ex">Fecha del examen (opcional)</label><input class="in" id="pl-ex" type="date" value="${PL.examen||""}"></div>
+    </div>
+
+    <label class="fld" style="margin-top:20px">Bloques por día</label>
+    <div class="pl-opts">
+      ${sim.map(s=>`<button class="pl-opt${PL.bd===s.n?" cur":""}" onclick="plAjustar(${s.n})">
+        <b>${s.n} ${s.n===1?"bloque":"bloques"}</b>
+        <span>${hhmm(s.n*28)} al día</span>
+        <span style="margin-top:4px">acabas el ${fcorta(s.f)}</span>
+      </button>`).join("")}
+    </div>
+
+    <label class="fld" style="margin-top:20px">Días de descanso</label>
+    <div class="pl-days">
+      ${[1,2,3,4,5,6,0].map(d=>`<button class="pl-day${PL.desc.indexOf(d)>-1?" on":""}" onclick="plDia(${d})">${PLDIA[d]}</button>`).join("")}
+    </div>
+
+    <p style="font-size:13px;color:var(--tinta2);margin:18px 0 0">
+      Las fechas se calculan empezando hoy con lo que te queda por hacer.
+      Los cinco simulacros ocupan el día entero: el examen dura 90 minutos y no se puede partir.
+    </p>
+    <div class="row" style="margin-top:18px">
+      <button class="btn" onclick="plGuardar()">Guardar fechas</button>
+      <button class="btn ghost" onclick="plCorrer()">Correr el plan a partir de hoy</button>
+      <button class="btn ghost" onclick="plReset()">Borrar el progreso del plan</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- bloque ---------- */
+function plBloque(b, destacado, compacto){
+  const done = !!PL.hechos[b.id];
+  const hoy = plHoy();
+  const f = b.fecha ? fpar(b.fecha) : null;
+  const tarde = f && !done && f < hoy;
+  const et = b.u ? ("UT "+b.u) : "General";
+  const borde = destacado ? "border:2px solid var(--magenta)"
+              : (tarde ? "border:1px solid var(--amar)" : "border:1px solid var(--veril)");
+  let h = `<div class="panel pl-card${done?" done":""}" style="${borde}">`;
+  if(f && !destacado){
+    h += `<div class="pl-fecha"><div class="d">${f.getDate()}</div><div class="m">${PLMESC[f.getMonth()]}</div><div class="w">${PLDIAC[f.getDay()]}</div></div>`;
+  }
+  h += `<div style="flex:1;min-width:0">
+    <div class="pl-meta"${tarde?' style="color:var(--amar)"':''}>${et} · bloque ${b.id} de ${PLAN.length} · ${b.m} min${b.sim?" · sesión larga":""}${tarde?" · atrasado "+plural(fdif(f,hoy),"día","días"):""}</div>
+    <div class="pl-tit">${b.t}</div>`;
+  if(!compacto){
+    h += `<ul class="pl-obj">${b.o.map(x=>"<li>"+x+"</li>").join("")}</ul>
+      <div class="row" style="margin-top:14px">
+        <button class="btn${done?" ghost":" mag"}" onclick="plIr(${b.id})">${plVerbo(b)}</button>
+        <button class="btn ghost" onclick="plMarcar(${b.id})">${done?"Desmarcar":"Marcar como hecho"}</button>
+      </div>`;
+  } else {
+    h += `<div class="row" style="margin-top:10px"><button class="btn ghost sm" onclick="plIr(${b.id})">${plVerbo(b)}</button></div>`;
+  }
+  h += `</div>`;
+  if(done) h += `<div style="color:var(--ok);font-size:20px;flex:0 0 auto">✓</div>`;
+  return h + `</div>`;
+}
+
+function plVerbo(b){
+  const k = b.a.k;
+  if(k==="test") return "Hacer el test";
+  if(k==="baliz" || k==="luces") return "Abrir el entrenador";
+  if(k==="taller") return "Ir al taller";
+  if(k==="examen") return "Empezar el examen";
+  if(k==="fallos") return "Repasar mis fallos";
+  return "Abrir la lección";
+}
+
+/* ---------- acciones ---------- */
+function plIr(id){
+  const b = PLAN[id-1]; if(!b) return;
+  const a = b.a; PL.ult = id; savePL();
+  if(a.k==="ficha"){ ficha(a.ut); return; }
+  if(a.k==="test"){ go("tests"); startTema(a.ut||0, a.n||20); return; }
+  if(a.k==="fallos"){ go("tests"); const f=$("#t-fallos"); if(f) f.click(); return; }
+  if(a.k==="baliz"){ go("baliz"); const s=$("#bz-start"); if(s) s.click(); return; }
+  if(a.k==="luces"){ go("luces"); return; }
+  if(a.k==="taller"){ go("taller"); return; }
+  if(a.k==="examen"){ go("examen"); return; }
+}
+function plMarcar(id){
+  if(PL.hechos[id]) delete PL.hechos[id];
+  else PL.hechos[id] = fkey(plHoy());
+  savePL(); paintPlan();
+}
+function plDia(d){
+  const i = PL.desc.indexOf(d);
+  if(i>-1) PL.desc.splice(i,1); else PL.desc.push(d);
+  if(PL.desc.length>5){ alert("Deja al menos dos días de estudio a la semana."); PL.desc.splice(PL.desc.indexOf(d),1); }
+  PL.desc.sort(); savePL(); paintPlan();
+}
+function plAjustar(n){ PL.bd = n; PL.desde = fkey(plHoy()); savePL(); paintPlan(); }
+function plCorrer(){ PL.desde = fkey(plHoy()); savePL(); paintPlan(); }
+function plRepartir(){
+  // sube un bloque al día y arranca hoy: absorbe lo atrasado sin perderlo
+  PL.bd = Math.min(4, PL.bd + 1); PL.desde = fkey(plHoy()); savePL(); paintPlan();
+}
+function plGuardar(){
+  const i = $("#pl-ini").value, e = $("#pl-ex").value;
+  if(i) PL.ini = i;
+  PL.examen = e || null;
+  if(fpar(PL.desde) < fpar(PL.ini)) PL.desde = PL.ini;
+  savePL(); paintPlan();
+}
+function plReset(){
+  if(confirm("Se borra el progreso del plan de estudio. Tus tests y exámenes del aula no se tocan. ¿Seguro?")){
+    const hoy = fkey(plHoy());
+    PL = {ini:hoy, desde:hoy, bd:1, desc:[5,6], hechos:{}, examen:null};
+    savePL(); paintPlan();
+  }
+}
+function plFase(f){
+  const bs = PLAN.filter(b=>b.f===f);
+  let h = `<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center">
+    <h3 style="margin:0;font-family:var(--serif);font-size:20px">Fase ${f} · ${FASE[f]}</h3>
+    <button class="btn ghost sm" onclick="$('#pl-fase').innerHTML=''">Cerrar</button></div></div>`;
+  bs.forEach(b=> h += plBloque(b, false));
+  $("#pl-fase").innerHTML = h;
+  try{ $("#pl-fase").scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){}
+}
+
 calcRumbos(); calcVTD(); calcSonda(); calcDemora();
+go("plan");
 document.addEventListener("keydown",e=>{
   if(!$("#v-run").classList.contains("on")) return;
   if(e.key==="ArrowRight") $("#r-next").click();
