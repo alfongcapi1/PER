@@ -166,6 +166,12 @@ button.btn.sm{padding:7px 12px;font-size:13.5px}
 #volver-plan:hover{background:var(--magenta)}
 #volver-plan.on{display:flex}
 @media (max-width:520px){ #volver-plan{right:12px;bottom:12px;padding:10px 14px;font-size:12.5px} }
+/* ---------- mini-esquemas de corrección ---------- */
+.mini-box{margin-top:12px;background:var(--papel);border:1px solid var(--veril);border-radius:6px;padding:10px 12px;overflow-x:auto}
+svg.mini{width:100%;height:auto;min-width:360px;color:var(--tinta);display:block}
+.mini-n{font-size:12.3px;color:var(--tinta2);margin:8px 0 0;line-height:1.5}
+.mini-n b{font-family:inherit;color:var(--tinta)}
+
 /* ---------- láminas ---------- */
 .lam-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
 .lam-box{color:var(--tinta)}
@@ -2515,7 +2521,8 @@ function paintRun(){
   const ex = $("#r-expl"); ex.innerHTML="";
   if(S.instant && S.ans[S.i]!==null){
     const bien = S.ans[S.i]===q.r;
-    ex.innerHTML = `<div class="expl"><b>${bien?"Correcto.":"No. La respuesta es la "+letras[q.r]+")."}</b> ${q.e}</div>`;
+    const suya = (!bien && S.ans[S.i]!=null) ? `<p class="mini-n"><b>Tu respuesta, la ${letras[S.ans[S.i]]}):</b> ${q.o[S.ans[S.i]]} — no es lo que se pregunta. Compáralo en el esquema.</p>` : "";
+    ex.innerHTML = `<div class="expl"><b>${bien?"Correcto.":"No. La respuesta es la "+letras[q.r]+")."}</b> ${q.e}${suya}${miniBloque(q)}</div>`;
   }
   $("#r-prev").disabled = S.i===0;
   $("#r-next").disabled = S.i===S.items.length-1;
@@ -2627,7 +2634,7 @@ function paintResult(res, qs, ans, auto){
         `<p style="font-family:var(--serif);font-size:17px;margin:0 0 6px">UT ${m.q.ut} · ${m.q.q}</p>`+
         `<p style="margin:0;font-size:14.5px;color:var(--mal)">Tu respuesta: ${m.a==null?"sin contestar":letras[m.a]+") "+m.q.o[m.a]}</p>`+
         `<p style="margin:2px 0 0;font-size:14.5px;color:var(--ok)">Correcta: ${letras[m.q.r]}) ${m.q.o[m.q.r]}</p>`+
-        `<div class="expl" style="margin-top:8px">${m.q.e}</div>`+
+        `<div class="expl" style="margin-top:8px">${m.q.e}${miniBloque(m.q)}</div>`+
         (LAM.some(l=>l.ut===m.q.ut)
           ? `<div class="lam-link"><button class="btn ghost sm" onclick="lamUt(${m.q.ut})">Ver la lámina de ${UT.find(u=>u.n===m.q.ut).t}</button></div>`
           : ``)+
@@ -4391,6 +4398,391 @@ const LAM = [
          "El buque que alcanza se aparta siempre, sea cual sea su categoría.",
          "Un velero con el motor encendido es, a efectos del RIPA, un buque de propulsión mecánica."]}
 ];
+
+
+/* ============================================================
+   MINI-ESQUEMAS DE CORRECCIÓN
+   Se eligen por el contenido de la pregunta y se dibujan bajo
+   la explicación, señalando la respuesta correcta y por qué las
+   otras opciones corresponden a otra cosa.
+   ============================================================ */
+
+function mSvg(vb, cuerpo, alto){
+  return `<svg viewBox="${vb}" class="mini"${alto?` style="max-height:${alto}px"`:""}>${cuerpo}</svg>`;
+}
+function mNota(t){ return `<p class="mini-n">${t}</p>`; }
+
+/* --- sectores de las luces, con los tres arcos rotulados --- */
+function mSectores(destaca){
+  const on = c => destaca===c ? "1" : ".38";
+  const peso = c => destaca===c ? "700" : "400";
+  return mSvg("0 0 420 230", `
+    <g transform="translate(115,120)">
+      <path d="M0,0 L-92,-92 A130,130 0 0,1 0,-130 Z" fill="#C1272D" opacity="${on('babor')}"/>
+      <path d="M0,0 L0,-130 A130,130 0 0,1 92,-92 Z" fill="#1C7A47" opacity="${on('estribor')}"/>
+      <path d="M0,0 L92,92 A130,130 0 0,1 -92,92 Z" fill="#9AA7B0" opacity="${on('alcance')}"/>
+      <path d="M0,0 L-92,-92 A130,130 0 0,1 92,-92 Z" fill="none" stroke="#0E2B33"
+            stroke-width="${destaca==='tope'?4:1.4}" opacity="${destaca==='tope'?1:.35}"/>
+      <polygon points="0,-24 12,15 -12,15" fill="#0E2B33"/>
+      <text x="0" y="-104" text-anchor="middle" font-size="10.5" fill="#0E2B33">proa</text>
+    </g>
+    <g font-size="12.5" fill="currentColor">
+      <text x="250" y="52" font-weight="${peso('tope')}" opacity="${destaca==='tope'?1:.8}">Tope, blanca · 225°</text>
+      <text x="250" y="78" font-weight="${peso('estribor')}" opacity="${destaca==='estribor'||destaca==='babor'?1:.8}">Costados · 112,5° cada una</text>
+      <text x="250" y="104" font-weight="${peso('alcance')}" opacity="${destaca==='alcance'?1:.8}">Alcance, blanca · 135°</text>
+      <line x1="250" y1="118" x2="404" y2="118" stroke="currentColor" opacity=".25"/>
+      <text x="250" y="140" font-size="11.5" opacity=".75">225 + 135 = 360</text>
+      <text x="250" y="158" font-size="11.5" opacity=".75">112,5 + 112,5 = 225, igual que el tope</text>
+      <text x="250" y="184" font-size="11.5" opacity=".75">El tope y los costados llegan hasta</text>
+      <text x="250" y="200" font-size="11.5" opacity=".75">22,5° a popa del través.</text>
+    </g>`);
+}
+
+/* --- las cuatro cardinales, con una destacada --- */
+function mCardinales(cual){
+  const set = {
+    n:{b:[{c:NEGRO,f:.5},{c:AMAR,f:.5}], t:"2arriba", n:"NORTE", l:"Q o VQ continuo"},
+    e:{b:[{c:NEGRO,f:.34},{c:AMAR,f:.32},{c:NEGRO,f:.34}], t:"bases", n:"ESTE", l:"Q(3) 10 s"},
+    s:{b:[{c:AMAR,f:.5},{c:NEGRO,f:.5}], t:"2abajo", n:"SUR", l:"Q(6)+LFl 15 s"},
+    o:{b:[{c:AMAR,f:.34},{c:NEGRO,f:.32},{c:AMAR,f:.34}], t:"vertices", n:"OESTE", l:"Q(9) 15 s"}
+  };
+  let s = "";
+  ["n","e","s","o"].forEach((k,i)=>{
+    const x = 70 + i*110, d = set[k], act = (cual===k);
+    if(act) s += `<rect x="${x-52}" y="92" width="104" height="120" rx="7" fill="#F2C744" opacity=".22"/>`;
+    s += `<g opacity="${act||!cual?1:.45}">` + boya(x, d.b, "lata", d.t, NEGRO, d.n, "", d.l) + `</g>`;
+  });
+  return mSvg("0 0 500 230", s);
+}
+
+/* --- laterales --- */
+function mLaterales(){
+  return mSvg("0 0 420 220", `
+    <text x="210" y="18" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">entrando a puerto</text>
+    <defs><marker id="mfl" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3E6C7E"/></marker></defs>
+    <line x1="90" y1="34" x2="330" y2="34" stroke="#3E6C7E" stroke-width="1.5" marker-end="url(#mfl)" opacity=".8"/>
+    ${boya(120,[{c:ROJO,f:1}],"lata","cilindro",ROJO,"BABOR","cilíndrica · luz roja","")}
+    ${boya(300,[{c:VERDE,f:1}],"cono","cono",VERDE,"ESTRIBOR","cónica · luz verde","")}`);
+}
+
+/* --- otras marcas --- */
+function mOtras(cual){
+  const d = {
+    pa:{b:[{c:NEGRO,f:.36},{c:ROJO,f:.28},{c:NEGRO,f:.36}], f:"lata", t:"2esferas", n:"PELIGRO AISLADO", l:"blanca, 2 destellos"},
+    an:{b:[{c:ROJO,f:.25},{c:BLANCO,f:.25},{c:ROJO,f:.25},{c:BLANCO,f:.25}], f:"esfera", t:"esfera", n:"AGUAS NAVEGABLES", l:"blanca Iso/Oc/LFl/Morse A"},
+    es:{b:[{c:AMAR,f:1}], f:"lata", t:"aspa", n:"ESPECIAL", l:"amarilla"}
+  };
+  let s = "";
+  ["pa","an","es"].forEach((k,i)=>{
+    const x = 90 + i*140, o = d[k], act = (cual===k);
+    if(act) s += `<rect x="${x-62}" y="92" width="124" height="118" rx="7" fill="#F2C744" opacity=".22"/>`;
+    s += `<g opacity="${act||!cual?1:.45}">` + boya(x, o.b, o.f, o.t, o.t==="esfera"?ROJO:(k==="es"?AMAR:NEGRO), o.n, "", o.l) + `</g>`;
+  });
+  return mSvg("0 0 430 225", s);
+}
+
+/* --- ritmos de luz --- */
+function mRitmos(cual){
+  const filas = [
+    ["fija","F · fija",[[0,100]]],
+    ["iso","Iso · isofase",[[0,25],[50,25]]],
+    ["oc","Oc · ocultaciones",[[0,38],[46,38],[92,8]]],
+    ["d","D · destellos",[[0,12],[50,12]]],
+    ["gp","Gp D(2) · grupo de 2",[[0,9],[14,9],[50,9],[64,9]]],
+    ["q","Q · centelleos",[[0,6],[13,6],[26,6],[39,6],[52,6],[65,6],[78,6],[91,6]]]
+  ];
+  let s = "";
+  filas.forEach((f,i)=>{
+    const y = 14+i*28, act = (cual===f[0]);
+    if(act) s += `<rect x="-4" y="${y-4}" width="430" height="24" rx="4" fill="#F2C744" opacity=".2"/>`;
+    s += `<text x="0" y="${y+11}" font-size="11" fill="currentColor" opacity="${act||!cual?1:.5}">${f[1]}</text>`;
+    s += `<rect x="150" y="${y}" width="270" height="14" fill="#1B2B33" opacity="${act||!cual?.85:.35}" rx="2"/>`;
+    f[2].forEach(g=> s += `<rect x="${150+g[0]*2.7}" y="${y}" width="${g[1]*2.7}" height="14" fill="#F2C744" opacity="${act||!cual?1:.4}" rx="2"/>`);
+  });
+  return mSvg("0 0 430 "+(filas.length*28+16), s) + mNota("Banda amarilla: luz encendida. Banda oscura: apagada.");
+}
+
+/* --- situaciones de encuentro --- */
+function mEncuentro(caso){
+  const barco = (x,y,ang,col,txt) => `<g transform="translate(${x},${y}) rotate(${ang})">
+    <polygon points="0,-20 12,14 -12,14" fill="${col}"/></g>
+    <text x="${x}" y="${y+34}" text-anchor="middle" font-size="10.5" fill="currentColor">${txt}</text>`;
+  if(caso === "cruce") return mSvg("0 0 420 210", `
+    ${barco(120,150,0,"#0E2B33","yo")}
+    ${barco(290,90,270,"#7A2E3C","él, por mi estribor")}
+    <path d="M120,130 L120,60" stroke="#0E2B33" stroke-dasharray="5 5" stroke-width="1.3" opacity=".6"/>
+    <path d="M270,90 L150,90" stroke="#7A2E3C" stroke-dasharray="5 5" stroke-width="1.3" opacity=".6"/>
+    <path d="M126,132 q40,-10 56,26" stroke="#1C7A47" stroke-width="2.4" fill="none" marker-end="url(#mfl2)"/>
+    <defs><marker id="mfl2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1C7A47"/></marker></defs>
+    <text x="215" y="178" font-size="11.5" fill="#1C7A47" font-weight="600">cedo yo: caigo a estribor y paso por su popa</text>
+    <text x="20" y="22" font-size="11.5" fill="currentColor" opacity=".8">Lo veo por MI estribor → veo su luz roja → cedo</text>`);
+  if(caso === "vuelta") return mSvg("0 0 420 200", `
+    ${barco(150,140,0,"#0E2B33","yo")}
+    ${barco(150,60,180,"#7A2E3C","él")}
+    <path d="M160,122 q30,-25 24,-52" stroke="#1C7A47" stroke-width="2.2" fill="none"/>
+    <path d="M140,78 q-30,25 -24,52" stroke="#1C7A47" stroke-width="2.2" fill="none"/>
+    <text x="280" y="86" font-size="11.5" fill="currentColor">Veo sus DOS luces de costado</text>
+    <text x="280" y="106" font-size="11.5" fill="currentColor">roja y verde: viene de proa.</text>
+    <text x="280" y="132" font-size="11.5" fill="#1C7A47" font-weight="600">Los dos caemos a estribor</text>
+    <text x="280" y="150" font-size="11.5" fill="currentColor" opacity=".8">y nos pasamos por babor.</text>`);
+  return mSvg("0 0 420 190", `
+    ${barco(140,70,0,"#7A2E3C","el alcanzado")}
+    ${barco(140,150,0,"#0E2B33","yo, que alcanzo")}
+    <path d="M140,128 L140,104" stroke="#0E2B33" stroke-width="1.6"/>
+    <path d="M152,146 q45,-20 40,-60" stroke="#1C7A47" stroke-width="2.2" fill="none"/>
+    <text x="250" y="70" font-size="11.5" fill="currentColor">Vengo de más de 22,5° a popa</text>
+    <text x="250" y="88" font-size="11.5" fill="currentColor">de su través: solo veo su luz</text>
+    <text x="250" y="106" font-size="11.5" fill="currentColor">blanca de alcance.</text>
+    <text x="250" y="134" font-size="11.5" fill="#1C7A47" font-weight="600">El que alcanza se aparta siempre,</text>
+    <text x="250" y="152" font-size="11.5" fill="currentColor" opacity=".8">sea cual sea su tipo de buque.</text>`);
+}
+
+/* --- luces todo horizonte por tipo de buque --- */
+function mLucesBuque(cual){
+  const f = [
+    ["sg","Sin gobierno",["#C1272D","#C1272D"],"2 esferas negras"],
+    ["mr","Maniobra restringida",["#C1272D","#F7F4EC","#C1272D"],"esfera·bicono·esfera"],
+    ["cal","Restringido por su calado",["#C1272D","#C1272D","#C1272D"],"un cilindro negro"],
+    ["arr","Pesca de arrastre",["#1C7A47","#F7F4EC"],"2 conos por el vértice"],
+    ["pes","Otras artes de pesca",["#C1272D","#F7F4EC"],"2 conos por el vértice"],
+    ["pra","Práctico",["#F7F4EC","#C1272D"],"bandera H"],
+    ["fon","Fondeado",["#F7F4EC"],"una bola negra"]
+  ];
+  let s = "";
+  f.forEach((r,i)=>{
+    const y = 16+i*34, act = (cual===r[0]);
+    if(act) s += `<rect x="-4" y="${y-8}" width="440" height="30" rx="5" fill="#F2C744" opacity=".2"/>`;
+    s += `<text x="0" y="${y+9}" font-size="11.5" fill="currentColor" opacity="${act||!cual?1:.5}">${r[1]}</text>`;
+    r[2].forEach((c,k)=> s += `<circle cx="236" cy="${y+2+k*11}" r="5" fill="${c}" stroke="#1B2B33" stroke-width=".9" opacity="${act||!cual?1:.5}"/>`);
+    s += `<text x="262" y="${y+9}" font-size="10.5" fill="currentColor" opacity="${act||!cual?.8:.4}">de día: ${r[3]}</text>`;
+  });
+  return mSvg("0 0 440 "+(f.length*34+14), s);
+}
+
+/* --- fuego --- */
+function mFuego(){
+  return mSvg("0 0 430 190", `
+    <polygon points="85,18 150,150 20,150" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <text x="85" y="12" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">COMBUSTIBLE</text>
+    <text x="10" y="166" font-size="10.5" font-weight="600" fill="currentColor">CALOR</text>
+    <text x="160" y="166" text-anchor="end" font-size="10.5" font-weight="600" fill="currentColor">COMBURENTE</text>
+    <g font-size="11.5" fill="currentColor">
+      <rect x="190" y="18" width="12" height="12" rx="3" fill="#8B6B3E"/><text x="210" y="28">A · sólidos → agua, polvo</text>
+      <rect x="190" y="42" width="12" height="12" rx="3" fill="#C1272D"/><text x="210" y="52">B · líquidos → espuma, polvo, CO₂</text>
+      <rect x="190" y="66" width="12" height="12" rx="3" fill="#E8B33A"/><text x="210" y="76">C · gases → polvo, cortar el gas</text>
+      <rect x="190" y="90" width="12" height="12" rx="3" fill="#6B7C8C"/><text x="210" y="100">D · metales → agente específico</text>
+      <rect x="190" y="114" width="12" height="12" rx="3" fill="#1C7A47"/><text x="210" y="124">F · aceite de cocina → manta</text>
+      <text x="190" y="150" font-size="11" opacity=".78">Eléctrico: cortar corriente y usar CO₂.</text>
+      <text x="190" y="168" font-size="11" opacity=".78">Nunca agua sobre eléctrico o líquidos.</text>
+    </g>`);
+}
+
+/* --- zonas de navegación --- */
+function mZonas(){
+  const z=[["7","puertos y aguas protegidas","#CFE9DC"],["6","hasta 2 millas de abrigo","#DCEBD3"],
+           ["5","hasta 5 millas de abrigo","#E8EFC9"],["4","hasta 12 millas de la costa","#F6EFC2"],
+           ["3","hasta 25 millas","#F7E2B8"],["2","hasta 60 millas","#F3D2B4"],["1","ilimitada","#EBC3BC"]];
+  let s=`<rect x="0" y="0" width="52" height="${z.length*26}" fill="#D9CDA8"/>
+         <text x="26" y="${z.length*13}" text-anchor="middle" font-size="10" fill="#5C4A22" transform="rotate(-90 26 ${z.length*13})">COSTA</text>`;
+  z.forEach((r,i)=>{
+    s+=`<rect x="52" y="${i*26}" width="378" height="26" fill="${r[2]}"/>`;
+    s+=`<text x="64" y="${i*26+17}" font-size="11.5" font-weight="700" fill="#1B2B33">Zona ${r[0]}</text>`;
+    s+=`<text x="120" y="${i*26+17}" font-size="11.5" fill="#1B2B33">${r[1]}</text>`;
+    if(r[0]==="4"){ s+=`<rect x="52" y="${i*26}" width="378" height="26" fill="none" stroke="#0E2B33" stroke-width="2.4"/>`;
+                    s+=`<text x="420" y="${i*26+17}" text-anchor="end" font-size="10" font-weight="700" fill="#0E2B33">PER</text>`; }
+  });
+  return mSvg("0 0 430 "+(z.length*26), s);
+}
+
+/* --- canal angosto --- */
+function mCanal(){
+  return mSvg("0 0 430 180", `
+    <rect x="0" y="0" width="430" height="34" fill="#D9CDA8"/>
+    <rect x="0" y="146" width="430" height="34" fill="#D9CDA8"/>
+    <line x1="0" y1="90" x2="430" y2="90" stroke="#3E6C7E" stroke-dasharray="6 6" stroke-width="1.1" opacity=".6"/>
+    <text x="215" y="86" text-anchor="middle" font-size="9.5" fill="#3E6C7E">eje del canal</text>
+    <rect x="60" y="104" width="90" height="24" rx="6" fill="#0E2B33"/>
+    <polygon points="150,104 178,116 150,128" fill="#0E2B33"/>
+    <text x="105" y="120" text-anchor="middle" font-size="10" fill="#F7F4EC">buque</text>
+    <text x="118" y="142" text-anchor="middle" font-size="10" fill="currentColor">por su estribor</text>
+    <rect x="300" y="52" width="70" height="20" rx="6" fill="#7A2E3C"/>
+    <polygon points="300,52 274,62 300,72" fill="#7A2E3C"/>
+    <text x="335" y="66" text-anchor="middle" font-size="10" fill="#F7F4EC">contrario</text>
+    <text x="330" y="44" text-anchor="middle" font-size="10" fill="currentColor">también por su estribor</text>
+    <circle cx="225" cy="132" r="8" fill="#C1272D" stroke="#1B2B33"/>
+    <text x="225" y="154" text-anchor="middle" font-size="9.5" fill="currentColor">recreo: no estorba</text>`);
+}
+
+/* --- preferencias regla 18 --- */
+function mPrefer(){
+  const o=["Sin gobierno","Maniobra restringida","Dedicado a la pesca","De vela","De propulsión mecánica"];
+  let s=`<text x="0" y="12" font-size="10.5" fill="currentColor" opacity=".7">más preferencia</text>`;
+  o.forEach((t,i)=>{
+    const y=20+i*30;
+    s+=`<rect x="0" y="${y}" width="${340-i*16}" height="23" rx="5" fill="#0E2B33" opacity="${(1-i*0.13).toFixed(2)}"/>`;
+    s+=`<text x="12" y="${y+16}" font-size="11.5" fill="#F7F4EC">${i+1}. ${t}</text>`;
+  });
+  s+=`<text x="0" y="${20+o.length*30+14}" font-size="10.5" fill="currentColor" opacity=".7">se aparta de todos los de arriba</text>`;
+  return mSvg("0 0 430 "+(20+o.length*30+24), s);
+}
+
+/* --- dimensiones del casco --- */
+function mCasco(destaca){
+  const hl = k => destaca===k ? "#C1272D" : "#0E2B33";
+  const pw = k => destaca===k ? 2.6 : 1.3;
+  return mSvg("0 0 430 210", `
+    <path d="M60,60 L330,60 L360,100 L330,140 L60,140 L40,100 Z" fill="#E8E2D2" stroke="#0E2B33" stroke-width="1.4"/>
+    <line x1="30" y1="112" x2="375" y2="112" stroke="#3E6C7E" stroke-width="1.6"/>
+    <text x="382" y="116" font-size="9.5" fill="#3E6C7E">flotación</text>
+    <text x="200" y="86" text-anchor="middle" font-size="10.5" fill="#0E2B33" opacity=".75">obra muerta</text>
+    <text x="200" y="130" text-anchor="middle" font-size="10.5" fill="#0E2B33" opacity=".75">obra viva</text>
+    <g stroke="${hl('eslora')}" stroke-width="${pw('eslora')}">
+      <line x1="40" y1="170" x2="360" y2="170"/><line x1="40" y1="164" x2="40" y2="176"/><line x1="360" y1="164" x2="360" y2="176"/></g>
+    <text x="200" y="186" text-anchor="middle" font-size="11.5" fill="${hl('eslora')}" font-weight="${destaca==='eslora'?700:400}">ESLORA · el largo</text>
+    <g stroke="${hl('puntal')}" stroke-width="${pw('puntal')}">
+      <line x1="20" y1="60" x2="20" y2="140"/><line x1="14" y1="60" x2="26" y2="60"/><line x1="14" y1="140" x2="26" y2="140"/></g>
+    <text x="8" y="52" font-size="11" fill="${hl('puntal')}" font-weight="${destaca==='puntal'?700:400}">PUNTAL</text>
+    <g stroke="${hl('calado')}" stroke-width="${pw('calado')}">
+      <line x1="395" y1="112" x2="395" y2="140"/><line x1="389" y1="112" x2="401" y2="112"/><line x1="389" y1="140" x2="401" y2="140"/></g>
+    <text x="408" y="132" font-size="10.5" fill="${hl('calado')}" font-weight="${destaca==='calado'?700:400}">CALADO</text>
+    <g stroke="${hl('franco')}" stroke-width="${pw('franco')}">
+      <line x1="395" y1="60" x2="395" y2="112"/></g>
+    <text x="408" y="86" font-size="10.5" fill="${hl('franco')}" font-weight="${destaca==='franco'?700:400}">FRANCOBORDO</text>
+    <text x="200" y="204" text-anchor="middle" font-size="11" fill="currentColor" opacity=".75">PUNTAL = CALADO + FRANCOBORDO · la MANGA es el ancho, no se ve de perfil</text>`);
+}
+
+/* --- sonda, marea y calado --- */
+function mSonda(){
+  return mSvg("0 0 430 190", `
+    <rect x="0" y="40" width="430" height="100" fill="#DCEAF0"/>
+    <path d="M0,140 q60,-14 120,4 q70,20 140,-6 q80,-28 170,10 L430,190 L0,190 Z" fill="#C9B98F" stroke="#8B7A4F"/>
+    <line x1="0" y1="40" x2="430" y2="40" stroke="#3E6C7E" stroke-width="1.6"/>
+    <text x="8" y="34" font-size="10" fill="#3E6C7E">superficie ahora</text>
+    <line x1="0" y1="78" x2="430" y2="78" stroke="#8B1E2D" stroke-dasharray="5 4" stroke-width="1.4"/>
+    <text x="8" y="73" font-size="10" fill="#8B1E2D">cero hidrográfico (bajamar)</text>
+    <polygon points="200,18 234,40 166,40" fill="#0E2B33"/>
+    <rect x="186" y="40" width="28" height="22" fill="#0E2B33" opacity=".9"/>
+    <g stroke="#0E2B33" stroke-width="1.6"><line x1="260" y1="40" x2="260" y2="62"/><line x1="254" y1="40" x2="266" y2="40"/><line x1="254" y1="62" x2="266" y2="62"/></g>
+    <text x="272" y="56" font-size="11" fill="#0E2B33">calado</text>
+    <g stroke="#8B1E2D" stroke-width="1.6"><line x1="340" y1="40" x2="340" y2="78"/><line x1="334" y1="40" x2="346" y2="40"/><line x1="334" y1="78" x2="346" y2="78"/></g>
+    <text x="352" y="62" font-size="11" fill="#8B1E2D">altura de marea</text>
+    <g stroke="#1C7A47" stroke-width="1.6"><line x1="100" y1="78" x2="100" y2="142"/><line x1="94" y1="78" x2="106" y2="78"/><line x1="94" y1="142" x2="106" y2="142"/></g>
+    <text x="112" y="116" font-size="11" fill="#1C7A47">sonda de la carta</text>
+    <text x="8" y="176" font-size="11.5" fill="currentColor" font-weight="600">Profundidad real = sonda de la carta + altura de marea</text>`);
+}
+
+/* --- nortes y corrección total --- */
+function mNortes(){
+  return mSvg("0 0 430 200", `
+    <g transform="translate(130,110)">
+      <circle r="78" fill="none" stroke="currentColor" stroke-width="1" opacity=".3"/>
+      <line x1="0" y1="0" x2="0" y2="-88" stroke="#0E2B33" stroke-width="2"/>
+      <text x="-4" y="-96" text-anchor="middle" font-size="10.5" fill="#0E2B33">Nv</text>
+      <line x1="0" y1="0" x2="26" y2="-84" stroke="#8B1E2D" stroke-width="2"/>
+      <text x="36" y="-88" text-anchor="middle" font-size="10.5" fill="#8B1E2D">Nm</text>
+      <line x1="0" y1="0" x2="45" y2="-76" stroke="#B07A1E" stroke-width="2"/>
+      <text x="60" y="-76" text-anchor="middle" font-size="10.5" fill="#B07A1E">Na</text>
+      <path d="M0,-58 A58,58 0 0,1 17,-55" fill="none" stroke="#8B1E2D" stroke-width="1.4"/>
+      <text x="20" y="-44" font-size="10" fill="#8B1E2D">dm</text>
+      <path d="M20,-52 A56,56 0 0,1 33,-45" fill="none" stroke="#B07A1E" stroke-width="1.4"/>
+      <text x="44" y="-38" font-size="10" fill="#B07A1E">Δ</text>
+    </g>
+    <g font-size="12" fill="currentColor">
+      <text x="248" y="52" font-weight="600">Ct = dm + Δ</text>
+      <text x="248" y="78">dm: declinación magnética (la carta)</text>
+      <text x="248" y="100">Δ: desvío de la aguja (el barco)</text>
+      <text x="248" y="130" font-weight="600" fill="#1C7A47">Rv = Ra + Ct</text>
+      <text x="248" y="152" font-weight="600" fill="#1C7A47">Ra = Rv − Ct</text>
+      <text x="248" y="178" font-size="11" opacity=".75">De aguja a verdadero se SUMA.</text>
+    </g>`);
+}
+
+/* --- demora y marcación --- */
+function mDemora(){
+  return mSvg("0 0 430 200", `
+    <g transform="translate(140,120)">
+      <line x1="0" y1="0" x2="0" y2="-95" stroke="#0E2B33" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="0" y="-102" text-anchor="middle" font-size="10.5" fill="#0E2B33">Norte</text>
+      <line x1="0" y1="0" x2="48" y2="-72" stroke="#1C7A47" stroke-width="2.2"/>
+      <text x="58" y="-74" font-size="10.5" fill="#1C7A47">proa (rumbo)</text>
+      <line x1="0" y1="0" x2="88" y2="-30" stroke="#8B1E2D" stroke-width="2.2"/>
+      <text x="96" y="-26" font-size="10.5" fill="#8B1E2D">faro</text>
+      <path d="M0,-52 A52,52 0 0,1 26,-45" fill="none" stroke="#1C7A47" stroke-width="1.3"/>
+      <text x="14" y="-58" font-size="10" fill="#1C7A47">Rv</text>
+      <path d="M32,-48 A58,58 0 0,1 55,-19" fill="none" stroke="#8B1E2D" stroke-width="1.3"/>
+      <text x="56" y="-48" font-size="10" fill="#8B1E2D">marcación</text>
+      <polygon points="0,-12 7,8 -7,8" fill="#0E2B33"/>
+    </g>
+    <g font-size="12" fill="currentColor">
+      <text x="268" y="70" font-weight="600">Demora = desde el NORTE</text>
+      <text x="268" y="94" font-weight="600">Marcación = desde la PROA</text>
+      <text x="268" y="126" fill="#1C7A47" font-weight="600">Dv = Rv + marcación</text>
+      <text x="268" y="150" font-size="11" opacity=".75">La marcación a babor se resta.</text>
+      <text x="268" y="170" font-size="11" opacity=".75">Ajusta el resultado a 360°.</text>
+    </g>`);
+}
+
+/* ============================================================
+   Elección del esquema según el texto de la pregunta
+   ============================================================ */
+const MINI = [
+  [/tope|de costado|de alcance|112|225|135|sector|arco de/i, (q)=>{
+      const t = q.q.toLowerCase();
+      if(/tope/.test(t))     return mSectores("tope");
+      if(/costado/.test(t))  return mSectores("estribor");
+      if(/alcance/.test(t))  return mSectores("alcance");
+      return mSectores(null); }],
+  [/cardinal\s*norte|cardinal\s*n\b/i, ()=>mCardinales("n")],
+  [/cardinal\s*este/i, ()=>mCardinales("e")],
+  [/cardinal\s*sur/i,  ()=>mCardinales("s")],
+  [/cardinal\s*oeste/i,()=>mCardinales("o")],
+  [/cardinal/i,        ()=>mCardinales(null)],
+  [/lateral|babor.*estribor|bifurcaci/i, ()=>mLaterales()],
+  [/peligro aislado/i, ()=>mOtras("pa")],
+  [/aguas navegables/i,()=>mOtras("an")],
+  [/marca especial|especiales/i, ()=>mOtras("es")],
+  [/nuevo peligro|rac[oó]n/i, ()=>mOtras(null)],
+  [/isofase/i, ()=>mRitmos("iso")],
+  [/ocultacion/i, ()=>mRitmos("oc")],
+  [/centelle/i, ()=>mRitmos("q")],
+  [/ritmo|periodo de una luz|destello|abreviatura/i, ()=>mRitmos(null)],
+  [/sin gobierno/i, ()=>mLucesBuque("sg")],
+  [/maniobra restringida/i, ()=>mLucesBuque("mr")],
+  [/restringido por su calado/i, ()=>mLucesBuque("cal")],
+  [/arrastre/i, ()=>mLucesBuque("arr")],
+  [/pesca|pescando/i, ()=>mLucesBuque("pes")],
+  [/pr[áa]ctico/i, ()=>mLucesBuque("pra")],
+  [/fondeado|varado/i, ()=>mLucesBuque("fon")],
+  [/cruce|costado de estribor/i, ()=>mEncuentro("cruce")],
+  [/vuelta encontrada/i, ()=>mEncuentro("vuelta")],
+  [/alcanza/i, ()=>mEncuentro("alcance")],
+  [/regla 18|apartarse de|preferencia|cede el paso/i, ()=>mPrefer()],
+  [/canal angosto|paso angosto|separaci[óo]n de tr[áa]fico/i, ()=>mCanal()],
+  [/fuego|incendio|extintor|combustible.*comburente|clase [ABCDF]\b/i, ()=>mFuego()],
+  [/zona de navegaci|zonas de navegaci|millas de la costa|material de seguridad/i, ()=>mZonas()],
+  [/francobordo/i, ()=>mCasco("franco")],
+  [/puntal/i, ()=>mCasco("puntal")],
+  [/calado/i, ()=>mCasco("calado")],
+  [/eslora|manga|obra viva|obra muerta/i, ()=>mCasco("eslora")],
+  [/sonda|marea|cero hidrogr|veril|isobata/i, ()=>mSonda()],
+  [/correcci[óo]n total|declinaci[óo]n|desv[íi]o|rumbo de aguja|rumbo verdadero/i, ()=>mNortes()],
+  [/demora|marcaci[óo]n|enfilaci/i, ()=>mDemora()]
+];
+
+function miniPara(q){
+  const t = q.q + " " + q.o.join(" ") + " " + (q.e||"");
+  for(let i=0; i<MINI.length; i++){
+    if(MINI[i][0].test(t)){
+      try{ return MINI[i][1](q); }catch(e){ return ""; }
+    }
+  }
+  return "";
+}
+/* bloque listo para insertar bajo una explicación */
+function miniBloque(q){
+  const s = miniPara(q);
+  return s ? `<div class="mini-box">${s}</div>` : "";
+}
 
 /* ---- vista ---- */
 function paintLaminas(filtro){
