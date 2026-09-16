@@ -155,6 +155,17 @@ button.btn.sm{padding:7px 12px;font-size:13.5px}
 .pills button.cur{border-color:var(--tinta);border-width:2px;font-weight:700;color:var(--tinta)}
 .pills button.ok{background:#DCEFE7;border-color:var(--ok);color:var(--ok)}
 .pills button.no{background:#F8DFE2;border-color:var(--mal);color:var(--mal)}
+
+/* ---------- volver al plan desde cualquier parte ---------- */
+#volver-plan{
+  position:fixed;right:18px;bottom:18px;z-index:60;display:none;align-items:center;gap:7px;
+  background:var(--tinta);color:var(--papel);border:0;border-radius:99px;
+  padding:11px 17px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;
+  box-shadow:0 3px 14px rgba(14,43,51,.28);
+}
+#volver-plan:hover{background:var(--magenta)}
+#volver-plan.on{display:flex}
+@media (max-width:520px){ #volver-plan{right:12px;bottom:12px;padding:10px 14px;font-size:12.5px} }
 /* ---------- plan de estudio ---------- */
 .pl-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:8px;margin-top:7px}
 .pl-opt{
@@ -218,6 +229,8 @@ button.btn.sm{padding:7px 12px;font-size:13.5px}
 .pl-d.vac2{border-style:dashed;color:var(--tinta3)}
 .pl-d.ex{background:var(--magenta);border-color:var(--magenta);color:#fff}
 .pl-d.hoy{outline:2px solid var(--tinta);outline-offset:1px}
+.pl-d.fin{background:var(--arena);border-color:var(--brass,#B08D3A);color:#6B531A;font-weight:600}
+.lg.x{background:var(--arena);border-color:#B08D3A}
 @media (max-width:520px){ .pl-d em{display:none} .pl-d{font-size:11px} }
 .pl-hero{
   display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap;
@@ -787,7 +800,13 @@ const FICHAS = {
    enunciados literales del Ministerio, ve a "Exámenes oficiales".
    ============================================================ */
 const Q = [];
-function q(ut,texto,opts,r,e){Q.push({id:Q.length,ut:ut,q:texto,o:opts,r:r,e:e});}
+const _qvistas = {};
+function q(ut,texto,opts,r,e){
+  const k = texto.toLowerCase().replace(/[^a-z0-9]/g,"");
+  if(_qvistas[k]) return;           // evita enunciados repetidos en el banco
+  _qvistas[k] = 1;
+  Q.push({id:Q.length, ut:ut, q:texto, o:opts, r:r, e:e});
+}
 
 /* ---------------- UT 1 · Nomenclatura ---------------- */
 q(1,"La obra viva de una embarcación es:",
@@ -1291,6 +1310,909 @@ q(11,"Si al trazar tres demoras el triángulo resultante es grande, lo indicado 
 q(11,"Las características de un faro anotadas en la carta como Fl(2)10s 30m 15M significan:",
 ["Grupos de dos destellos cada 10 s, a 30 m de altura y con 15 millas de alcance.","Dos faros separados 10 m con 15 millas de alcance.","Luz fija de 10 s de duración a 30 millas.","Dos ocultaciones cada 15 s a 10 m de altura."],0,
 "El alcance nominal se da en millas y la altura del plano focal en metros sobre el nivel medio del mar.");
+
+/* ============================================================
+   AMPLIACIÓN DEL BANCO · unidades 1 a 5
+   Redactadas sobre el temario del RD 875/2014, el RIPA,
+   el sistema IALA región A y el RD 339/2021.
+   ============================================================ */
+
+/* ---------------- UT 1 · Nomenclatura ---------------- */
+q(1,"El francobordo es la distancia vertical medida entre:",
+["La línea de flotación y la cubierta.","La quilla y la línea de flotación.","La quilla y la cubierta.","La regala y el espejo de popa."],0,
+"Francobordo es lo que asoma del agua. Puntal = calado + francobordo.");
+q(1,"El desplazamiento de una embarcación es:",
+["El peso del agua que desaloja, igual a su propio peso.","El volumen total de sus bodegas.","La distancia que recorre en una hora.","El peso máximo de carga autorizado."],0,
+"Por el principio de Arquímedes, el peso del agua desalojada iguala al peso del buque.");
+q(1,"Se llama arqueo a:",
+["La capacidad o volumen interior de la embarcación.","La curvatura de la cubierta de proa a popa.","El peso en rosca del buque.","La inclinación transversal."],0,
+"El arqueo mide volumen, no peso. No confundir con desplazamiento.");
+q(1,"La pieza longitudinal que forma la base del casco y sobre la que se levanta toda la estructura es:",
+["La quilla.","La roda.","El codaste.","El durmiente."],0,
+"La quilla es la columna vertebral; la roda la prolonga a proa y el codaste a popa.");
+q(1,"El codaste es:",
+["La pieza que cierra la estructura del casco por la popa.","La pieza que cierra la estructura por la proa.","Una cuaderna reforzada central.","El refuerzo transversal de la cubierta."],0,
+"Roda a proa, codaste a popa, y ambos arrancan de la quilla.");
+q(1,"Las cuadernas son:",
+["Los refuerzos transversales del casco.","Los refuerzos longitudinales de la cubierta.","Las piezas que sujetan el timón.","Los mamparos estancos."],0,
+"Las cuadernas son las costillas del buque; los baos refuerzan transversalmente la cubierta.");
+q(1,"Se denomina escora a:",
+["La inclinación transversal de la embarcación.","La inclinación longitudinal.","El movimiento de avance.","La diferencia entre el calado de proa y el de popa."],0,
+"Escora es transversal; la inclinación longitudinal es el asiento o trimado.");
+q(1,"El asiento de una embarcación es:",
+["La diferencia entre el calado de popa y el de proa.","La inclinación transversal.","La altura del puntal.","La suma de eslora y manga."],0,
+"Si el calado de popa es mayor, se dice que está apopado; si lo es el de proa, aproado.");
+q(1,"Se llama arrufo a:",
+["La curvatura de la cubierta con los extremos más altos que el centro.","La curvatura con el centro más alto que los extremos.","La inclinación transversal.","El ancho máximo del casco."],0,
+"Arrufo: extremos altos. Quebranto: centro alto. Son curvaturas contrarias.");
+q(1,"El través de una embarcación es:",
+["La dirección perpendicular a la línea de crujía.","La dirección de la proa.","La zona comprendida entre la proa y el centro.","La parte más alta del palo."],0,
+"La marcación del través es 90º, a una banda u otra.");
+q(1,"Las amuras son:",
+["Las zonas del costado próximas a la proa.","Las zonas próximas a la popa.","Los refuerzos de la quilla.","Los cabos de amarre a popa."],0,
+"Amuras cerca de la proa, aletas cerca de la popa.");
+q(1,"La línea de crujía es:",
+["La línea longitudinal que divide la embarcación en dos mitades iguales.","La línea de flotación en carga.","El borde superior del costado.","La unión entre cubierta y costado."],0,
+"Divide babor de estribor y sirve de referencia para medir marcaciones.");
+q(1,"La regala es:",
+["La pieza que remata el borde superior del costado.","La abertura de desagüe de la cubierta.","El suelo de la bañera.","La barra del timón."],0,
+"Los imbornales son las aberturas de desagüe; la regala es el remate superior de la borda.");
+q(1,"Los imbornales sirven para:",
+["Evacuar el agua de la cubierta al mar.","Ventilar la cámara del motor.","Sujetar los candeleros.","Dar salida a los gases de escape."],0,
+"Si se obstruyen, el agua se acumula en cubierta y perjudica la estabilidad.");
+q(1,"La mecha del timón es:",
+["El eje sobre el que gira la pala del timón.","La parte plana que ofrece resistencia al agua.","El orificio por donde entra la mecha en el casco.","El cable que une la caña con la rueda."],0,
+"La limera es el orificio de paso de la mecha en el casco.");
+q(1,"El paso de una hélice es:",
+["La distancia teórica que avanza en una vuelta completa.","El diámetro del círculo que describe.","El número de palas que tiene.","La velocidad de giro en revoluciones."],0,
+"El retroceso es la diferencia entre el avance teórico y el real.");
+q(1,"La cavitación en una hélice se produce cuando:",
+["Se forman burbujas de vapor que reducen el empuje y dañan las palas.","La hélice gira al revés que el motor.","El paso es demasiado corto.","El eje se desalinea con la bocina."],0,
+"Es un fenómeno de baja presión en el dorso de las palas, a altas revoluciones.");
+q(1,"La bocina de una embarcación es:",
+["El tubo por el que sale el eje de la hélice al exterior.","El dispositivo de señales acústicas.","El conducto de ventilación del motor.","La abertura de achique del pantoque."],0,
+"Es un punto crítico de estanqueidad: hay que revisar su prensaestopas.");
+q(1,"Se denomina esloras a:",
+["Los refuerzos longitudinales que sostienen la cubierta.","Los refuerzos transversales del casco.","Las medidas de longitud del buque.","Los mamparos de proa."],0,
+"Cuidado con el falso amigo: la eslora es la longitud, pero las esloras son refuerzos longitudinales.");
+q(1,"Un mamparo estanco sirve para:",
+["Dividir el interior en compartimentos que limiten una inundación.","Reforzar la cubierta frente a los golpes de mar.","Sujetar el motor a la bancada.","Aumentar el arqueo."],0,
+"Confina el agua en un solo compartimento y conserva reserva de flotabilidad.");
+q(1,"La bañera de una embarcación de recreo es:",
+["El espacio descubierto donde se gobierna y se sitúa la tripulación.","El compartimento de proa donde se estiban las velas.","El tanque de agua dulce.","El pañol de cadenas."],0,
+"Debe drenar rápidamente: es autovaciable si evacua el agua embarcada por sí sola.");
+q(1,"El espejo de popa es:",
+["La superficie plana que cierra el casco por la popa.","El cristal del puesto de gobierno.","El refuerzo de la roda.","La plataforma de baño."],0,
+"En las embarcaciones a motor suele soportar el motor fueraborda.");
+q(1,"Los candeleros son:",
+["Los soportes verticales que sujetan los guardamancebos.","Las luces de navegación de costado.","Los refuerzos de la quilla.","Los cabos que sujetan el ancla."],0,
+"Candeleros y guardamancebos forman la barandilla de seguridad perimetral.");
+q(1,"Se denomina calado a:",
+["La distancia vertical entre la línea de flotación y la parte más baja de la quilla.","La distancia entre la flotación y la cubierta.","La longitud total del casco.","La altura del palo sobre el agua."],0,
+"Es el dato que decide si se puede pasar sobre un bajo con una sonda determinada.");
+
+/* ---------------- UT 2 · Amarre y fondeo ---------------- */
+q(2,"El chicote de un cabo es:",
+["Cada uno de sus extremos.","Su parte central.","La curva que forma al doblarse.","El grosor medido en milímetros."],0,
+"Firme es la parte fija, seno la curvatura y chicote el extremo suelto.");
+q(2,"Se llama seno de un cabo a:",
+["La curva que forma entre dos puntos.","Su extremo libre.","La parte que trabaja fija.","El nudo de remate del extremo."],0,
+"El seno es la comba; nunca debe pisarse ni quedar bajo el pie al trabajar.");
+q(2,"El nudo idóneo para hacer una gaza fija que no se corre es:",
+["El as de guía.","El nudo llano.","El ballestrinque.","El cote."],0,
+"El as de guía forma una gaza que no se aprieta y se deshace con facilidad.");
+q(2,"El ballestrinque se usa principalmente para:",
+["Afirmar un cabo a un poste, argolla o candelero.","Unir dos cabos de igual grosor.","Rematar el extremo de un cabo.","Tomar rizos en la vela mayor."],0,
+"Es rápido de hacer pero puede correrse: conviene rematarlo con un cote.");
+q(2,"El nudo llano sirve para:",
+["Unir dos cabos del mismo grosor.","Unir dos cabos de grosor muy distinto.","Amarrar a un noray.","Fijar el ancla a la cadena."],0,
+"Para cabos de grosor distinto se usa la vuelta de escota.");
+q(2,"El esprín o spring es la amarra que:",
+["Impide el desplazamiento longitudinal de la embarcación en el atraque.","Sujeta el ancla al molinete.","Une la cadena con el cabo de fondeo.","Da vuelta al cabrestante."],0,
+"Los largos sujetan a lo largo, los través impiden separarse del muelle y los esprines evitan avante y atrás.");
+q(2,"Una defensa sirve para:",
+["Proteger el costado del roce con el muelle u otra embarcación.","Amarrar a una boya de fondeo.","Aumentar el agarre del ancla.","Señalizar el ancla fondeada."],0,
+"Se sitúan a la altura de la línea de contacto, no demasiado altas ni bajas.");
+q(2,"El noray es:",
+["El elemento fijo del muelle donde se dan las amarras.","La pieza de cubierta donde se hace firme el cabo.","El peso que se añade a la cadena.","El cabo que une el ancla con la boya."],0,
+"En el barco se usan bitas y cornamusas; en el muelle, norays y argollas.");
+q(2,"El orinque es:",
+["El cabo que une el ancla con una boya en superficie.","La cadena principal de fondeo.","El grillete que une ancla y cadena.","El freno del molinete."],0,
+"Sirve para localizar el ancla y para zafarla si queda enrocada.");
+q(2,"Las uñas del ancla son:",
+["Las partes que penetran y agarran en el fondo.","Los eslabones reforzados de la cadena.","Los topes del molinete.","Las marcas de longitud de la cadena."],0,
+"Brazos y uñas son las que muerden el tenedero; la caña es el cuerpo central.");
+q(2,"El arganeo del ancla es:",
+["La argolla donde se engrilleta la cadena.","La pieza transversal que voltea el ancla.","La punta del brazo.","El contrapeso de plomo."],0,
+"El cepo es la pieza transversal que hace volcar el ancla para que agarre.");
+q(2,"Se dice que el ancla garrea cuando:",
+["Ha perdido el agarre y la embarcación se desplaza arrastrándola.","Está firmemente clavada en el fondo.","Ha quedado enrocada entre piedras.","Está suspendida sin tocar fondo."],0,
+"Se detecta por marcaciones a tierra o por la alarma de fondeo del GPS.");
+q(2,"El círculo de borneo es:",
+["El espacio que recorre la embarcación girando alrededor del ancla.","La zona prohibida al fondeo.","El radio de giro con el timón a la banda.","La circunferencia que traza la cadena en el molinete."],0,
+"Hay que comprobar que no haya obstáculos ni otros barcos dentro de él.");
+q(2,"Como regla práctica, la longitud de cadena que se debe filar al fondear es:",
+["Del orden de tres a cinco veces la sonda del lugar.","Igual a la sonda.","La mitad de la sonda.","Diez veces la eslora."],0,
+"Con cabo hace falta más longitud que con cadena, y con mal tiempo se aumenta.");
+q(2,"El mejor tenedero para fondear suele ser:",
+["Arena y fango.","Roca y piedra suelta.","Praderas de posidonia.","Fondo de algas duras."],0,
+"Además, fondear sobre posidonia está prohibido por su protección ambiental.");
+q(2,"El molinete de un barco de recreo sirve para:",
+["Virar y filar la cadena del ancla.","Tensar las escotas de las velas.","Gobernar el timón de emergencia.","Achicar la sentina."],0,
+"El estopor o mordaza retiene la cadena y libera al molinete del esfuerzo.");
+q(2,"Para amarrar a una boya de fondeo lo correcto es:",
+["Pasar un cabo propio por la argolla y regresar a bordo con los dos chicotes.","Hacer firme un solo chicote con nudo corredizo.","Amarrar directamente con la cadena del ancla.","Dejar la embarcación abarloada sin cabo."],0,
+"Así se puede largar desde cubierta sin tener que bajar a la boya.");
+q(2,"Al desatracar con viento que abate contra el muelle, resulta útil:",
+["Trabajar con un esprín y el timón para separar la popa o la proa.","Dar avante con todas las amarras dadas.","Largar todas las amarras a la vez y dar atrás.","Fondear el ancla sobre el muelle."],0,
+"El esprín permite abrir un ángulo antes de largar el último cabo.");
+q(2,"Un cabo de fibra sintética debe estibarse:",
+["Seco, a la sombra y sin contacto con productos químicos.","Mojado y al sol para que se seque rápido.","Enrollado sobre una superficie metálica caliente.","Siempre en tensión."],0,
+"El sol y los hidrocarburos degradan las fibras y reducen la carga de rotura.");
+q(2,"La gaza de un cabo es:",
+["Un ojo o lazo formado en su extremo.","El extremo sin rematar.","Una vuelta alrededor de una bita.","El nudo que une dos cabos."],0,
+"El guardacabos protege la gaza del desgaste al trabajar sobre un grillete.");
+q(2,"Antes de fondear conviene comprobar en la carta:",
+["La naturaleza del fondo, la sonda y los peligros próximos.","Solo la distancia a la playa.","Únicamente la altura del faro más cercano.","La declinación magnética del año."],0,
+"La carta indica la calidad del tenedero con abreviaturas como A (arena) o F (fango).");
+q(2,"Una embarcación fondeada debe exhibir de día:",
+["Una bola negra a proa.","Un cono con el vértice hacia abajo.","Dos esferas negras superpuestas.","Un cilindro negro."],0,
+"De noche, una luz blanca todo horizonte si mide menos de 50 metros.");
+
+/* ---------------- UT 3 · Seguridad ---------------- */
+q(3,"La estanqueidad de una embarcación se refiere a:",
+["Su capacidad de impedir la entrada de agua al interior.","Su facilidad para recuperar la posición adrizada.","Su capacidad de carga máxima.","Su velocidad máxima en calma."],0,
+"Grifos de fondo, bocina, portillos y escotillas son los puntos críticos.");
+q(3,"El par de adrizamiento es:",
+["El momento que tiende a devolver la embarcación a su posición vertical.","La fuerza que la hace escorar.","El empuje de la hélice al girar.","La resistencia del casco al avance."],0,
+"Nace de la separación entre el centro de gravedad y el centro de carena.");
+q(3,"Subir pesos a las partes altas de la embarcación:",
+["Eleva el centro de gravedad y reduce la estabilidad.","Baja el centro de gravedad y mejora la estabilidad.","No afecta a la estabilidad.","Aumenta el francobordo."],0,
+"Todo peso pesado debe estibarse bajo y bien trincado.");
+q(3,"El efecto de superficies libres consiste en:",
+["La pérdida de estabilidad por el movimiento del líquido en tanques o sentinas parcialmente llenos.","El aumento de velocidad al planear.","La reducción del calado al aligerar carga.","La entrada de agua por los imbornales."],0,
+"Por eso conviene llevar los tanques llenos o vacíos, y achicar la sentina.");
+q(3,"Ante una vía de agua, la primera actuación debe ser:",
+["Localizarla y taponarla, poniendo en marcha los medios de achique.","Abandonar de inmediato la embarcación.","Aumentar la velocidad para llegar antes a puerto.","Abrir los grifos de fondo para igualar presiones."],0,
+"Si no se puede taponar, se busca varar en un lugar seguro antes de hundirse.");
+q(3,"El triángulo del fuego está formado por:",
+["Combustible, comburente y calor.","Humo, llama y ceniza.","Agua, espuma y polvo.","Oxígeno, nitrógeno y CO2."],0,
+"Eliminando cualquiera de los tres lados se extingue el fuego.");
+q(3,"Un fuego de clase B es el que afecta a:",
+["Líquidos inflamables como el combustible.","Sólidos como madera o tejidos.","Equipos eléctricos en tensión.","Metales ligeros."],0,
+"Clase A sólidos, B líquidos, C gases, D metales y F aceites de cocina.");
+q(3,"Ante un incendio de origen eléctrico lo primero es:",
+["Cortar la corriente y emplear un agente no conductor.","Arrojar agua a chorro sobre el cuadro.","Abrir todas las escotillas para ventilar.","Aumentar las revoluciones del motor."],0,
+"El agua conduce la electricidad: se usa CO2 o polvo.");
+q(3,"Si se declara un incendio en la cámara de máquinas, conviene:",
+["Cerrar accesos y ventilaciones y descargar el extintor por la portilla prevista.","Abrir la tapa por completo para ver el foco.","Ventilar al máximo con el extractor.","Echar agua de mar con una manguera."],0,
+"Abrir la tapa aporta oxígeno y aviva el fuego bruscamente.");
+q(3,"El chaleco salvavidas debe llevar:",
+["Silbato, cinta reflectante y luz cuando la norma lo exige.","Solamente la marca del fabricante.","Un lastre de plomo para hundir los pies.","Un anclaje rígido a la cubierta."],0,
+"La flotabilidad se expresa en newtons: 100 N o 150 N según la zona y el uso.");
+q(3,"Las zonas de navegación para embarcaciones de recreo van:",
+["De la 1 a la 7, según la distancia a la costa o a un abrigo.","De la A a la E.","De la 1 a la 4.","Por colores según el tipo de casco."],0,
+"La zona determina el material de seguridad exigible a bordo.");
+q(3,"La zona de navegación 4 corresponde a:",
+["Navegación en la que la embarcación no se aleja más de 12 millas de la costa.","Navegación ilimitada.","Navegación hasta 60 millas.","Aguas protegidas."],0,
+"Es justamente el alcance que habilita el título de PER.");
+q(3,"Las bengalas de mano son señales:",
+["De socorro, de uso pirotécnico y con fecha de caducidad.","De maniobra entre buques.","De identificación de la matrícula.","De aviso de inmersión de buceadores."],0,
+"Caducan a los tres o cuatro años y se entregan a un gestor autorizado.");
+q(3,"El aro salvavidas debe:",
+["Ir accesible en cubierta, sin trincar, y con rabiza o luz según la zona.","Guardarse estibado bajo cubierta.","Amarrarse firmemente a un candelero.","Llevar lastre para que no se lo lleve el viento."],0,
+"En una situación de hombre al agua se lanza de inmediato para marcar el punto.");
+q(3,"La balsa salvavidas debe revisarse:",
+["Periódicamente en una estación de servicio autorizada.","Solo si se ha usado alguna vez.","Cada diez años como máximo.","Únicamente al venderla."],0,
+"La zafa hidrostática permite que se libere sola si la embarcación se hunde.");
+q(3,"Para prevenir la caída al agua durante la navegación con mal tiempo se emplea:",
+["El arnés de seguridad con línea de vida.","El aro salvavidas colgado del cuello.","La balsa salvavidas abierta en cubierta.","El chaleco de esquí náutico."],0,
+"El arnés se engancha antes de salir a cubierta, nunca después de caer.");
+q(3,"La hipotermia se combate en el agua:",
+["Reduciendo movimientos y adoptando la posición fetal.","Nadando enérgicamente para entrar en calor.","Quitándose la ropa para nadar mejor.","Bebiendo alcohol para calentarse."],0,
+"El movimiento y el alcohol aceleran la pérdida de calor corporal.");
+q(3,"Antes de salir a la mar conviene comprobar:",
+["Previsión meteorológica, combustible, material de seguridad y estado del motor.","Únicamente el nivel de combustible.","Solo la carta de la zona.","Nada, si la salida es corta."],0,
+"Además conviene dejar dicho en tierra el plan de navegación y la hora de regreso.");
+q(3,"La reserva de flotabilidad es:",
+["El volumen estanco por encima de la flotación que mantiene a flote la embarcación.","El combustible de emergencia.","El espacio libre de la bañera.","La capacidad del pañol de proa."],0,
+"La pierde toda entrada de agua no controlada por encima de la flotación.");
+q(3,"El extintor de polvo ABC es adecuado para:",
+["Fuegos de sólidos, líquidos y gases.","Únicamente fuegos eléctricos.","Solo fuegos de aceite de cocina.","Solo fuegos de metales."],0,
+"Hay que revisar su presión y su fecha de mantenimiento periódicamente.");
+q(3,"La luz de socorro estroboscópica o la linterna estanca sirven para:",
+["Señalizar la posición de una persona en el agua o de la balsa.","Iluminar la carta náutica.","Sustituir a las luces de navegación.","Indicar el rumbo al timonel."],0,
+"De noche, la localización visual es el principal factor de éxito del rescate.");
+q(3,"Los grifos de fondo deben:",
+["Poder cerrarse con rapidez y revisarse periódicamente.","Permanecer siempre abiertos.","Eliminarse por seguridad.","Sustituirse cada travesía."],0,
+"Conviene tener junto a cada uno un tapón de madera cónico por si falla el grifo.");
+q(3,"La estabilidad transversal inicial se relaciona con:",
+["La altura metacéntrica.","La eslora total.","El arqueo bruto.","La potencia del motor."],0,
+"Una altura metacéntrica grande da un barco duro y balances rápidos.");
+q(3,"El achique de una embarcación puede hacerse con:",
+["Bomba eléctrica, bomba manual y baldes.","Únicamente bomba eléctrica.","Solo abriendo los imbornales.","Solo con la bomba de refrigeración del motor."],0,
+"Conviene tener un medio manual por si falla la instalación eléctrica.");
+q(3,"Los cohetes con luz roja y paracaídas se emplean:",
+["Como señal de socorro visible a gran distancia.","Para indicar cambio de rumbo.","Para señalar la posición de las redes de pesca.","Como iluminación de cubierta."],0,
+"Se disparan preferentemente cuando hay posibilidad de ser vistos.");
+q(3,"Navegar con las escotillas y portillos abiertos con mala mar:",
+["Es peligroso, porque puede embarcarse agua al interior.","Es recomendable para ventilar.","Mejora la estabilidad.","Reduce el calado."],0,
+"Antes de salir con mal tiempo se cierra y trinca todo.");
+q(3,"El material de seguridad obligatorio depende de:",
+["La zona de navegación en la que se despacha la embarcación.","La edad del patrón.","El color del casco.","El número de motores."],0,
+"El RD 339/2021 fija las dotaciones exigibles para cada zona.");
+
+/* ---------------- UT 4 · Legislación ---------------- */
+q(4,"El título de Patrón de Embarcaciones de Recreo habilita para gobernar embarcaciones de hasta:",
+["15 metros de eslora, hasta 12 millas de la costa.","12 metros de eslora, hasta 15 millas.","24 metros de eslora sin límite de distancia.","8 metros de eslora, hasta 5 millas."],0,
+"Con las prácticas correspondientes se amplía a la navegación entre islas de Baleares y al gobierno de embarcaciones de vela.");
+q(4,"Las embarcaciones de recreo dedicadas al recreo privado se inscriben en:",
+["La lista séptima.","La lista sexta.","La lista tercera.","La lista primera."],0,
+"La sexta corresponde a embarcaciones de recreo con fines comerciales, como el chárter.");
+q(4,"La lista sexta del registro de matrícula corresponde a:",
+["Embarcaciones de recreo explotadas con fines comerciales.","Embarcaciones de recreo de uso privado.","Buques de pesca de bajura.","Remolcadores y dragas."],0,
+"El uso comercial exige además otros requisitos de despacho y seguro.");
+q(4,"La velocidad máxima dentro de los canales de acceso a playas balizados es:",
+["3 nudos.","5 nudos.","10 nudos.","20 nudos."],0,
+"El canal debe recorrerse perpendicular a la playa y siempre a velocidad de maniobra.");
+q(4,"En una playa balizada, la franja de mar reservada a los bañistas se extiende, con carácter general, hasta:",
+["200 metros de la orilla.","50 metros.","500 metros.","1 milla."],0,
+"En costas no balizadas la franja reservada al baño es de 200 m en playas y 50 m en el resto del litoral.");
+q(4,"La navegación dentro de la zona de baño balizada está:",
+["Prohibida, salvo por los canales de acceso señalizados.","Permitida a menos de 3 nudos.","Permitida solo a motor.","Permitida con autorización verbal del socorrista."],0,
+"Entrar fuera del canal es una infracción sancionable.");
+q(4,"El convenio internacional que regula la prevención de la contaminación por los buques es:",
+["El MARPOL.","El SOLAS.","El COLREG.","El SAR."],0,
+"SOLAS trata la seguridad de la vida humana en el mar y COLREG las reglas de abordaje.");
+q(4,"Arrojar plásticos al mar desde una embarcación de recreo está:",
+["Totalmente prohibido en cualquier lugar.","Permitido a más de 12 millas.","Permitido si están troceados.","Permitido de noche."],0,
+"La prohibición de vertido de plásticos del MARPOL no admite excepciones por distancia.");
+q(4,"El seguro de responsabilidad civil para embarcaciones de recreo es:",
+["Obligatorio.","Voluntario.","Solo obligatorio para embarcaciones a motor.","Solo obligatorio en navegación internacional."],0,
+"Cubre los daños a terceros y debe llevarse acreditado a bordo.");
+q(4,"El despacho de una embarcación de recreo de lista séptima:",
+["Tiene validez indefinida mientras se mantengan sus condiciones.","Debe renovarse en cada salida.","Se solicita en la capitanía cada mes.","Lo emite el club náutico."],0,
+"Es el permiso administrativo para navegar y debe estar a bordo.");
+q(4,"La zona de servidumbre de protección del dominio público marítimo-terrestre se regula en:",
+["La Ley de Costas.","El Código de Comercio.","El Reglamento de Radiocomunicaciones.","El Convenio SAR."],0,
+"La Ley de Puertos y Marina Mercante regula la navegación y la seguridad marítima.");
+q(4,"La práctica del esquí náutico exige, entre otros requisitos:",
+["La presencia de un observador además del patrón.","Navegar dentro de la zona de baño.","Un mínimo de tres motores.","Realizarse siempre de noche."],0,
+"Además debe hacerse fuera de las zonas de baño y de los canales de acceso.");
+q(4,"La titulación necesaria para manejar una moto náutica de clase B es:",
+["Una titulación náutica de recreo o la licencia específica correspondiente.","Ninguna, basta con ser mayor de edad.","El título de capitán de yate.","El carné de conducir terrestre."],0,
+"Las motos náuticas tienen además limitaciones de horario y de zona.");
+q(4,"La edad mínima para obtener el título de PER es:",
+["18 años, o 16 con consentimiento de los representantes legales.","21 años.","14 años.","No hay edad mínima."],0,
+"Con 16 años y autorización paterna se pueden ejercer las atribuciones con limitaciones.");
+q(4,"La documentación que debe llevarse a bordo incluye:",
+["Certificado de navegabilidad, hoja de asiento o certificado de matrícula, seguro y titulación.","Solo la titulación del patrón.","Solo el seguro.","Solo el certificado de navegabilidad."],0,
+"También el rol o licencia de navegación según el tipo y lista de la embarcación.");
+q(4,"Las embarcaciones de recreo deben pasar inspecciones periódicas:",
+["Sí, con la periodicidad que fija la norma según su eslora y uso.","No, nunca.","Solo si cambian de propietario.","Solo si superan los 24 metros."],0,
+"El resultado se refleja en el certificado de navegabilidad.");
+q(4,"Fondear en una zona de posidonia protegida:",
+["Está prohibido.","Está permitido con cadena corta.","Está permitido fuera de temporada.","Está permitido si se usa ancla de arado."],0,
+"Es una pradera protegida y su destrucción está sancionada.");
+q(4,"La bandera nacional en una embarcación de recreo española:",
+["Debe izarse en el lugar previsto cuando la embarcación esté a flote y en navegación diurna.","Solo se iza en puerto extranjero.","Es opcional en todo caso.","Se iza únicamente los domingos."],0,
+"La bandera de cortesía del país visitado se iza en el estay o en la cruceta de estribor.");
+q(4,"La potestad sancionadora en materia de marina mercante y navegación corresponde, entre otros, a:",
+["La Administración marítima, a través de las capitanías marítimas.","Los clubes náuticos.","Las federaciones deportivas.","Las compañías de seguros."],0,
+"Salvamento Marítimo, en cambio, es la entidad encargada del rescate y la lucha contra la contaminación.");
+q(4,"La titulación de PER permite el gobierno de embarcaciones de vela:",
+["Solo si se han realizado las prácticas reglamentarias de vela.","Siempre, sin requisitos adicionales.","Nunca.","Solo en aguas interiores."],0,
+"Sin esas prácticas, las atribuciones quedan limitadas a la propulsión mecánica.");
+
+/* ---------------- UT 5 · Balizamiento ---------------- */
+q(5,"En la región A del sistema IALA, la marca lateral de babor es:",
+["Roja, cilíndrica y con luz roja.","Verde, cónica y con luz verde.","Amarilla, con aspa y luz amarilla.","Negra y roja con luz blanca."],0,
+"Se deja a babor al entrar a puerto siguiendo el sentido convencional de balizamiento.");
+q(5,"La marca de tope de una boya lateral de estribor en la región A es:",
+["Un cono verde con el vértice hacia arriba.","Un cilindro rojo.","Dos conos negros.","Una esfera roja."],0,
+"Lateral de estribor: verde, cónica, cono verde vértice arriba.");
+q(5,"Una marca cardinal Norte se caracteriza por:",
+["Dos conos negros superpuestos con los vértices hacia arriba.","Dos conos con los vértices hacia abajo.","Dos conos unidos por sus bases.","Dos esferas negras."],0,
+"Su color es negro sobre amarillo, y la luz blanca de centelleos continuos.");
+q(5,"La luz de una marca cardinal Sur es:",
+["Blanca, con grupos de seis centelleos seguidos de un destello largo cada 15 segundos.","Blanca, con grupos de tres centelleos cada 10 segundos.","Blanca, con grupos de nueve centelleos cada 15 segundos.","Roja de destellos."],0,
+"El destello largo final distingue a la cardinal Sur de cualquier otra.");
+q(5,"La luz de una marca cardinal Este es:",
+["Blanca, con grupos de tres centelleos cada 10 segundos.","Blanca, con grupos de nueve centelleos cada 15 segundos.","Blanca continua.","Verde de destellos."],0,
+"Regla del reloj: Este en las 3, tres centelleos; Sur en las 6; Oeste en las 9.");
+q(5,"La luz de una marca cardinal Oeste es:",
+["Blanca, con grupos de nueve centelleos cada 15 segundos.","Blanca, con grupos de seis centelleos y un destello largo.","Blanca continua.","Amarilla de destellos."],0,
+"Oeste está en las nueve de la esfera del reloj: nueve centelleos.");
+q(5,"Los colores de una marca cardinal Oeste son:",
+["Amarillo con una franja negra horizontal central.","Negro con franja amarilla central.","Negro sobre amarillo.","Amarillo sobre negro."],0,
+"La franja negra ocupa el lugar que señalan los conos: vértice con vértice, en el centro.");
+q(5,"Las marcas de tope de una cardinal Oeste son:",
+["Dos conos negros unidos por sus vértices.","Dos conos unidos por sus bases.","Dos conos con los vértices hacia arriba.","Dos esferas negras."],0,
+"Forman una figura de copa o reloj de arena, fácil de recordar por la W.");
+q(5,"Una marca de peligro aislado indica:",
+["Un peligro de extensión reducida rodeado de aguas navegables.","El eje de un canal principal.","Aguas seguras alrededor.","Una zona de vertido."],0,
+"Se fondea sobre el propio peligro, por lo que no debe pasarse cerca.");
+q(5,"La luz de una marca de peligro aislado es:",
+["Blanca con grupos de dos destellos.","Blanca con un destello largo cada 10 segundos.","Roja de centelleos.","Amarilla de grupos de cuatro."],0,
+"Dos esferas negras de tope y dos destellos: la coincidencia ayuda a recordarla.");
+q(5,"Una marca de aguas navegables se identifica por:",
+["Franjas verticales rojas y blancas con una esfera roja de tope.","Franjas horizontales negras y rojas.","Color amarillo con aspa.","Color verde con cono."],0,
+"Señala que hay aguas navegables alrededor, por ejemplo la entrada a un canal.");
+q(5,"La luz de una marca de aguas navegables puede ser:",
+["Blanca isofase, de ocultaciones, un destello largo cada 10 segundos o Morse A.","Roja de destellos rápidos.","Verde de grupos de dos.","Amarilla continua."],0,
+"La letra A del Morse es punto-raya, característica de estas marcas.");
+q(5,"Una marca especial es:",
+["Amarilla, con marca de tope en aspa amarilla y luz amarilla.","Roja con esfera blanca.","Negra con dos conos.","Verde con cilindro."],0,
+"Señala zonas de ejercicios, vertidos, cables, boyas oceanográficas o áreas de recreo.");
+q(5,"Un nuevo peligro no señalado en las cartas puede balizarse:",
+["Duplicando una marca cardinal o lateral apropiada.","Con una boya amarilla exclusivamente.","Solo con una luz roja fija.","Sin ninguna señal, avisando por radio."],0,
+"Puede llevar además un racón que emite la letra D en Morse.");
+q(5,"En una marca de bifurcación con canal principal a estribor, el color de la boya es:",
+["Rojo con una ancha franja verde horizontal.","Verde con franja roja.","Amarillo con franja negra.","Negro con franja roja."],0,
+"El color de fondo indica la banda por la que se deja siguiendo el canal principal.");
+q(5,"Una luz de ocultaciones se caracteriza porque:",
+["El periodo de luz es mayor que el de oscuridad.","El periodo de oscuridad es mayor que el de luz.","Ambos periodos son iguales.","Emite más de 50 destellos por minuto."],0,
+"En la luz isofase los dos periodos son iguales; en la de destellos manda la oscuridad.");
+q(5,"Una luz isofase es aquella en la que:",
+["Los periodos de luz y de oscuridad son iguales.","La luz dura más que la oscuridad.","La oscuridad dura más que la luz.","La luz permanece siempre encendida."],0,
+"Se abrevia Iso en las cartas náuticas.");
+q(5,"Se denomina periodo de una luz al:",
+["Tiempo que tarda en repetirse el ciclo completo de apariencias.","Tiempo que dura un solo destello.","Número de destellos por minuto.","Alcance en millas."],0,
+"En la carta se anota tras el ritmo, por ejemplo Gp D(2) 10s.");
+q(5,"El alcance nominal de un faro es:",
+["La distancia a la que se ve en unas condiciones de visibilidad determinadas.","La altura del foco sobre el nivel del mar.","La distancia al puerto más próximo.","El número de millas que abarca su sector rojo."],0,
+"El alcance geográfico depende además de la altura del foco y del ojo del observador.");
+q(5,"Una luz centelleante rápida se caracteriza por emitir:",
+["Del orden de 50 a 79 centelleos por minuto.","Menos de 10 destellos por minuto.","Un destello cada medio minuto.","Luz continua sin interrupción."],0,
+"Las cardinales emplean centelleos porque exigen una identificación inmediata.");
+q(5,"Los colores de una marca cardinal Sur son:",
+["Amarillo en la parte superior y negro en la inferior.","Negro arriba y amarillo abajo.","Negro con franja amarilla central.","Amarillo con franja negra central."],0,
+"Los conos apuntan hacia abajo y el negro se sitúa donde apuntan: en la parte baja.");
+q(5,"Al avistar una marca cardinal Este, la embarcación debe pasar:",
+["Por el este de la marca.","Por el oeste.","Por el norte.","Indistintamente por cualquier banda."],0,
+"El nombre indica el cuadrante de aguas seguras respecto del peligro.");
+q(5,"Una boya que señala un canal de acceso a una playa suele ser:",
+["Una marca especial amarilla.","Una marca cardinal Norte.","Una marca de peligro aislado.","Una lateral roja."],0,
+"Las marcas especiales no indican peligro para la navegación por sí mismas.");
+q(5,"El sentido convencional de balizamiento es:",
+["El de entrada a puerto, río o estuario, o el fijado por la autoridad.","Siempre de norte a sur.","Siempre de este a oeste.","El que decida cada patrón."],0,
+"De él dependen los colores laterales que se dejan a cada banda.");
+q(5,"Un racón es:",
+["Un respondedor que produce una señal identificable en la pantalla de radar.","Una luz de sector rojo.","Un tipo de boya de fondeo.","Una señal de niebla acústica."],0,
+"En un nuevo peligro puede emitir la letra D, raya-punto-punto.");
+q(5,"Una marca lateral de babor de la región A puede llevar como luz:",
+["Roja de cualquier ritmo.","Verde de destellos.","Blanca de centelleos.","Amarilla continua."],0,
+"Lo determinante es el color rojo; el ritmo sirve para distinguir unas boyas de otras.");
+q(5,"Las marcas de tope de una cardinal Este son:",
+["Dos conos negros unidos por sus bases.","Dos conos unidos por sus vértices.","Dos conos con los vértices hacia abajo.","Dos esferas negras."],0,
+"Base con base forma una figura de rombo achatado, propia de la cardinal Este.");
+q(5,"Las marcas de tope de una cardinal Sur son:",
+["Dos conos negros con los vértices hacia abajo.","Dos conos con los vértices hacia arriba.","Dos conos unidos por las bases.","Un cilindro rojo."],0,
+"Los conos siempre apuntan hacia donde está el color negro del cuerpo de la boya.");
+q(5,"Un faro con sectores de distinto color sirve para:",
+["Indicar sectores seguros y peligrosos según el color que se observe.","Marcar la hora oficial del puerto.","Señalar la dirección del viento.","Delimitar zonas de pesca."],0,
+"Habitualmente el sector blanco marca la aproximación segura y el rojo o el verde el peligro.");
+q(5,"La abreviatura Gp D(3) 15s en una carta significa:",
+["Grupo de tres destellos cada quince segundos.","Tres destellos seguidos de quince ocultaciones.","Quince destellos en tres grupos por minuto.","Luz fija de quince segundos."],0,
+"El número entre paréntesis es la cantidad de destellos del grupo y el valor en segundos, el periodo.");
+q(5,"Una marca cardinal se fondea:",
+["En el cuadrante cuyo nombre lleva, respecto del peligro.","Justo encima del peligro.","Siempre al norte del peligro.","En el centro del canal."],0,
+"Una cardinal Norte se fondea al norte del peligro y se pasa por el norte de ella.");
+q(5,"La señal de niebla asociada a una baliza sirve para:",
+["Permitir su identificación acústica en condiciones de visibilidad reducida.","Avisar del cambio de marea.","Indicar la entrada de un buque a puerto.","Señalar una zona de baño."],0,
+"Puede ser una sirena, un silbato o una campana con un ritmo propio.");
+q(5,"Si se avista de noche una luz blanca con grupos de dos destellos sobre una boya, se trata probablemente de:",
+["Una marca de peligro aislado.","Una marca de aguas navegables.","Una marca lateral.","Una marca especial."],0,
+"Dos destellos, dos esferas negras: la regla mnemotécnica es directa.");
+q(5,"Una boya amarilla con aspa amarilla de tope y luz amarilla de grupos de cinco destellos es:",
+["Una marca especial.","Una cardinal Sur.","Una marca de nuevo peligro.","Una lateral de estribor."],0,
+"El ritmo de cinco destellos es característico de algunas marcas especiales para no confundirse con las cardinales.");
+q(5,"El principal riesgo de confundir una cardinal Este con una Oeste es:",
+["Pasar por la banda equivocada y caer sobre el peligro.","Perder cobertura de radio.","Fondear sobre un cable submarino.","Entrar en zona de baño."],0,
+"De ahí que el examen limite a dos los errores permitidos en balizamiento.");
+
+/* ============================================================
+   AMPLIACIÓN DEL BANCO · unidades 6 a 11
+   ============================================================ */
+
+/* ---------------- UT 6 · RIPA ---------------- */
+q(6,"Según la regla 5 del RIPA, la vigilancia debe mantenerse:",
+["Permanentemente, por la vista, el oído y todos los medios disponibles.","Solo de noche.","Solo con visibilidad reducida.","Solo cuando hay tráfico a la vista."],0,
+"La vigilancia es continua y no se delega en el radar o el AIS en exclusiva.");
+q(6,"La velocidad de seguridad de la regla 6 es aquella que permite:",
+["Maniobrar eficazmente para evitar un abordaje y detenerse a la distancia adecuada.","Llegar a puerto en el menor tiempo posible.","Mantener el consumo mínimo del motor.","Superar a los demás buques con seguridad."],0,
+"Depende de visibilidad, densidad de tráfico, maniobrabilidad, estado de la mar y calado.");
+q(6,"Existe riesgo de abordaje, según la regla 7, cuando:",
+["La demora de otro buque que se aproxima no varía de forma apreciable.","El otro buque es más grande.","La demora cambia rápidamente.","Se navega con visibilidad reducida."],0,
+"En caso de duda, se considerará que el riesgo existe.");
+q(6,"Toda maniobra para evitar un abordaje, según la regla 8, debe ser:",
+["Clara, amplia y realizada con la debida antelación.","Pequeña y sucesiva para no alarmar.","Siempre una reducción de velocidad.","Siempre a babor."],0,
+"Una sucesión de cambios pequeños no es perceptible desde el otro buque.");
+q(6,"En un paso o canal angosto, todo buque debe navegar:",
+["Lo más cerca posible del límite exterior que quede por su costado de estribor.","Por el centro del canal.","Pegado al margen de babor.","Al ritmo del buque más lento."],0,
+"Las embarcaciones de menos de 20 metros y los veleros no deben estorbar a los buques que solo pueden navegar dentro del canal.");
+q(6,"Una embarcación de recreo de menos de 20 metros que navega por un canal angosto:",
+["No debe estorbar el paso de un buque que solo pueda navegar dentro de ese canal.","Tiene preferencia sobre cualquier buque.","Puede fondear en el centro del canal.","Debe navegar siempre por el centro."],0,
+"La regla 9 lo establece expresamente, igual que para los buques de vela.");
+q(6,"En un dispositivo de separación de tráfico, un buque que deba cruzarlo:",
+["Lo hará en lo posible con rumbo perpendicular a la dirección general del tráfico.","Navegará en diagonal para tardar menos.","Lo cruzará solo de noche.","Lo cruzará siguiendo la vía de circulación."],0,
+"Cruzar perpendicularmente reduce al mínimo el tiempo de exposición.");
+q(6,"Un buque alcanza a otro cuando se aproxima desde una dirección:",
+["De más de 22,5 grados a popa del través del buque alcanzado.","De menos de 22,5 grados a proa del través.","Exactamente por el través.","Desde cualquier dirección a proa."],0,
+"De noche, el que alcanza solo vería la luz de alcance del otro y ninguna de costado.");
+q(6,"El buque que alcanza a otro:",
+["Debe mantenerse apartado del buque alcanzado.","Tiene preferencia por llevar más velocidad.","Debe pasar siempre por estribor.","Cede el paso solo si es de vela."],0,
+"Esta obligación no cambia aunque después varíe la marcación entre ambos.");
+q(6,"Dos buques de propulsión mecánica que navegan de vuelta encontrada:",
+["Caerán ambos a estribor para pasarse por babor.","Caerán ambos a babor.","Mantendrán el rumbo y la velocidad.","El menor cederá el paso."],0,
+"La regla 14 obliga a una maniobra simétrica y reconocible.");
+q(6,"En una situación de cruce entre dos buques de propulsión mecánica:",
+["Cede el paso el que ve al otro por su costado de estribor.","Cede el que ve al otro por babor.","Cede el más rápido.","Cede el de menor eslora."],0,
+"Además, evitará en lo posible cruzar por la proa del otro.");
+q(6,"El buque obligado a seguir a rumbo, según la regla 17:",
+["Mantendrá su rumbo y velocidad, pero podrá maniobrar si el otro no actúa.","Debe maniobrar inmediatamente.","No puede maniobrar en ningún caso.","Debe reducir siempre la velocidad."],0,
+"Cuando el abordaje no pueda evitarse solo con la maniobra del otro, actuará.");
+q(6,"Un buque de propulsión mecánica que deba ceder el paso, si maniobra con la máquina:",
+["Evitará en lo posible cruzar por la proa del otro.","Cruzará por la proa para ganar tiempo.","Aumentará la velocidad.","Solo podrá caer a babor."],0,
+"Lo habitual es caer a estribor y pasar por la popa del otro.");
+q(6,"Dos buques de vela que reciben el viento por bandas distintas:",
+["Cede el paso el que lo recibe por babor.","Cede el que lo recibe por estribor.","Cede el que va a sotavento.","Cede el más pequeño."],0,
+"El amurado a estribor es el privilegiado en esa situación.");
+q(6,"Dos buques de vela amurados a la misma banda:",
+["Cede el paso el que esté a barlovento.","Cede el que esté a sotavento.","Cede el de mayor eslora.","No hay preferencia definida."],0,
+"El de barlovento tiene mejor viento y más capacidad de maniobra.");
+q(6,"Según la regla 18, un buque de propulsión mecánica en navegación debe apartarse de:",
+["Un buque sin gobierno, uno con capacidad de maniobra restringida, uno dedicado a la pesca y uno de vela.","Solo de los buques de vela.","Solo de los pesqueros.","De ninguno, si navega por su derrota."],0,
+"El orden de preferencia va del menos maniobrable al más maniobrable.");
+q(6,"Un buque de vela en navegación debe apartarse de:",
+["Un buque sin gobierno, uno con maniobra restringida y uno dedicado a la pesca.","Un buque de propulsión mecánica.","Una embarcación de recreo a motor.","De ninguno."],0,
+"El velero cede ante los tres menos maniobrables, pero no ante el buque a motor.");
+q(6,"La regla 19 del RIPA se aplica a los buques:",
+["Que no están a la vista uno del otro y navegan en visibilidad reducida.","Que se ven mutuamente de día.","Fondeados en puerto.","Que navegan en canal angosto."],0,
+"Si los buques se ven, se aplican las reglas de rumbo y gobierno de la sección II.");
+q(6,"En visibilidad reducida, un buque que detecta a otro solo por radar a proa del través:",
+["Evitará un cambio de rumbo hacia babor, salvo si está alcanzando.","Caerá siempre a babor.","Mantendrá rumbo y velocidad en todo caso.","Aumentará la velocidad para pasar antes."],0,
+"También evitará cambiar el rumbo hacia un buque situado por el través o a popa del través.");
+q(6,"En visibilidad reducida, al oír una señal de niebla por la proa del través:",
+["Se reducirá la velocidad a la mínima de gobierno y, si es preciso, se parará la arrancada.","Se aumentará la velocidad.","Se mantendrá el rumbo sin variación.","Se fondeará de inmediato."],0,
+"La regla 19 obliga a extremar la precaución hasta que pase el riesgo.");
+q(6,"La luz de tope de un buque de propulsión mecánica abarca un arco de:",
+["225 grados.","112,5 grados.","135 grados.","360 grados."],0,
+"Va de la proa hasta 22,5 grados a popa del través de cada banda.");
+q(6,"Cada luz de costado abarca un arco de:",
+["112,5 grados.","225 grados.","135 grados.","180 grados."],0,
+"Verde a estribor y roja a babor, desde la proa hasta 22,5 grados a popa del través.");
+q(6,"La luz de alcance abarca un arco de:",
+["135 grados.","225 grados.","112,5 grados.","360 grados."],0,
+"Es blanca y se muestra en la popa; 225 + 135 completan los 360 grados.");
+q(6,"Un buque de propulsión mecánica de más de 50 metros en navegación exhibe:",
+["Dos luces de tope, la de popa más alta que la de proa, luces de costado y de alcance.","Una sola luz de tope.","Tres luces de tope.","Solo luces de costado."],0,
+"En los de menos de 50 metros la segunda luz de tope es opcional.");
+q(6,"Una embarcación de vela de menos de 20 metros puede exhibir:",
+["Las tres luces combinadas en una farola tricolor en el tope del palo.","Dos luces rojas todo horizonte.","Una luz blanca de tope.","Un cilindro negro."],0,
+"También puede llevar la bicolor a proa más la de alcance, pero no ambas soluciones a la vez.");
+q(6,"Un buque de vela que navega a vela y motor a la vez debe exhibir de día:",
+["Un cono negro con el vértice hacia abajo.","Una bola negra.","Dos esferas negras.","Un cilindro negro."],0,
+"A efectos del RIPA es un buque de propulsión mecánica, con sus luces correspondientes.");
+q(6,"Un buque sin gobierno exhibe:",
+["Dos luces rojas todo horizonte en línea vertical.","Dos luces verdes en línea vertical.","Rojo, blanco y rojo.","Tres luces rojas."],0,
+"De día, dos esferas negras superpuestas.");
+q(6,"Un buque con capacidad de maniobra restringida exhibe:",
+["Roja, blanca y roja todo horizonte en línea vertical.","Dos luces rojas.","Tres luces rojas.","Verde sobre blanca."],0,
+"De día, esfera, bicono y esfera en línea vertical.");
+q(6,"Un buque restringido por su calado exhibe:",
+["Tres luces rojas todo horizonte en línea vertical.","Dos luces rojas.","Roja, blanca y roja.","Una luz roja."],0,
+"De día, un cilindro negro.");
+q(6,"Un buque dedicado a la pesca de arrastre exhibe:",
+["Una luz verde sobre una blanca todo horizonte.","Una roja sobre una blanca.","Dos luces rojas.","Tres luces verdes."],0,
+"Los demás pesqueros muestran roja sobre blanca. De día, ambos, dos conos unidos por los vértices.");
+q(6,"Un buque de práctico en servicio exhibe:",
+["Una luz blanca sobre una roja todo horizonte.","Una roja sobre una blanca.","Dos luces verdes.","Tres luces blancas."],0,
+"Se recuerda con la frase del práctico: blanco arriba, rojo abajo.");
+q(6,"Un buque varado exhibe de noche:",
+["Las luces de fondeo más dos luces rojas todo horizonte en línea vertical.","Solo una luz blanca.","Tres luces verdes.","Una luz roja y una verde."],0,
+"De día, tres esferas negras en línea vertical.");
+q(6,"Un buque fondeado de más de 50 metros exhibe:",
+["Una luz blanca a proa y otra más baja a popa, ambas todo horizonte.","Una sola luz blanca.","Dos luces rojas.","Una luz verde a proa."],0,
+"De día, una bola negra en la parte de proa.");
+q(6,"Un buque remolcando cuyo remolque supera los 200 metros exhibe:",
+["Tres luces de tope en línea vertical y, de día, un rombo negro.","Dos luces de tope.","Una luz roja sobre blanca.","Dos esferas negras."],0,
+"El buque remolcado exhibe también un rombo negro de día.");
+q(6,"Una pitada corta en las señales de maniobra tiene una duración aproximada de:",
+["Un segundo.","Cinco segundos.","Diez segundos.","Medio minuto."],0,
+"La pitada larga dura entre cuatro y seis segundos.");
+q(6,"Una pitada corta significa:",
+["Caigo a estribor.","Caigo a babor.","Estoy dando atrás.","No comprendo sus intenciones."],0,
+"Dos cortas: caigo a babor. Tres cortas: estoy dando atrás.");
+q(6,"Tres pitadas cortas significan:",
+["Estoy dando atrás.","Caigo a estribor.","Voy a fondear.","Pido paso por estribor."],0,
+"Indica que el buque está usando la máquina hacia atrás, no necesariamente que retroceda.");
+q(6,"Cinco o más pitadas cortas y rápidas significan:",
+["Duda sobre las intenciones o maniobras del otro buque.","Solicitud de remolque.","Aviso de fondeo.","Petición de práctico."],0,
+"Puede acompañarse de cinco o más destellos rápidos de luz.");
+q(6,"En visibilidad reducida, un buque de propulsión mecánica con arrancada emite:",
+["Una pitada larga a intervalos no superiores a dos minutos.","Dos pitadas largas.","Tres pitadas cortas.","Una campana cada minuto."],0,
+"Si está parado sin arrancada, emite dos pitadas largas seguidas.");
+q(6,"En visibilidad reducida, un buque fondeado de menos de 100 metros emite:",
+["Un repique de campana rápido de unos cinco segundos cada minuto.","Una pitada larga cada dos minutos.","Tres pitadas cortas.","Nada, basta con la luz de fondeo."],0,
+"En los buques de más de 100 metros se añade un gong en la parte de popa.");
+q(6,"Un buque sin gobierno, uno de vela o uno dedicado a la pesca emiten en visibilidad reducida:",
+["Una pitada larga seguida de dos cortas, cada dos minutos.","Una pitada larga sola.","Dos pitadas largas.","Tres pitadas cortas."],0,
+"Es la señal común a los buques con maniobra condicionada, larga-corta-corta.");
+q(6,"Según el anexo IV, una señal de socorro reconocida es:",
+["Una bandera cuadra con una bola encima o debajo.","Una bandera amarilla izada en el palo.","Tres pitadas cortas.","Una luz verde de destellos."],0,
+"También el SOS en Morse, el MAYDAY por radio, las llamas a bordo o el humo naranja.");
+q(6,"La señal de socorro por radiotelefonía es:",
+["La palabra MAYDAY.","La palabra PAN PAN.","La palabra SÉCURITÉ.","La palabra ROGER."],0,
+"PAN PAN es urgencia y SÉCURITÉ, seguridad.");
+q(6,"Levantar y bajar lentamente los brazos extendidos a los costados significa:",
+["Una señal de socorro.","Un saludo entre embarcaciones.","Una petición de combustible.","Un aviso de zona de baño."],0,
+"Figura entre las señales de peligro del anexo IV del RIPA.");
+q(6,"Las reglas del RIPA se aplican:",
+["A todos los buques en alta mar y en aguas conectadas navegables por buques de navegación marítima.","Solo a los buques mercantes.","Solo a los buques de más de 20 metros.","Solo dentro de los puertos."],0,
+"Incluye a las embarcaciones de recreo sin excepción.");
+q(6,"La regla 2 del RIPA, de responsabilidad, establece que:",
+["Ninguna regla exime de las consecuencias de una negligencia o de las precauciones que exija la práctica marinera.","Las reglas pueden incumplirse con buen tiempo.","El buque mayor tiene siempre razón.","El patrón no responde si cumplió la letra de las reglas."],0,
+"Permite apartarse de las reglas si es necesario para evitar un peligro inmediato.");
+q(6,"Se considera buque de propulsión mecánica, a efectos del RIPA:",
+["Todo buque movido por una máquina.","Solo los buques mercantes.","Los buques de más de 12 metros.","Los buques con hélice de paso variable."],0,
+"Un velero con el motor en marcha entra en esta definición aunque lleve velas izadas.");
+q(6,"Un buque de menos de 7 metros de eslora cuya velocidad máxima no exceda de 7 nudos puede exhibir, en lugar de las luces normales:",
+["Una luz blanca todo horizonte y, si es posible, las luces de costado.","Solo una luz roja.","Dos luces blancas.","Ninguna luz."],0,
+"Es la excepción de la regla 23 para embarcaciones muy pequeñas y lentas.");
+q(6,"Una embarcación a remo puede exhibir:",
+["Una linterna eléctrica o farol con luz blanca a tiempo para evitar el abordaje.","Dos luces rojas.","Una luz verde de tope.","Un cono negro."],0,
+"Es la solución que da la regla 25 para las embarcaciones de vela pequeñas y de remo.");
+q(6,"Las luces de navegación se exhiben:",
+["Desde la puesta del sol hasta la salida del sol, y con visibilidad reducida.","Solo en alta mar.","Solo cuando hay tráfico.","Solo dentro de los puertos."],0,
+"Durante el día también, si la visibilidad lo aconseja.");
+
+/* ---------------- UT 7 · Maniobra ---------------- */
+q(7,"Una hélice de paso a la derecha, dando avante, tiende a:",
+["Llevar la popa hacia estribor.","Llevar la popa hacia babor.","No producir ningún efecto lateral.","Aumentar el calado a proa."],0,
+"Dando atrás, el efecto se invierte y la popa cae a babor.");
+q(7,"El efecto evolutivo de la hélice es más notable:",
+["A poca velocidad y con la máquina atrás.","A gran velocidad avante.","Con el timón a la vía.","Con la embarcación fondeada."],0,
+"Por eso las maniobras de puerto se aprovechan del efecto de la hélice.");
+q(7,"La curva de evolución de una embarcación es:",
+["La trayectoria que describe al meter el timón a una banda.","El perfil de la carena.","La curva de consumo del motor.","El diagrama de estabilidad."],0,
+"El avance y el traslado definen el espacio que necesita para girar.");
+q(7,"El esprín de proa permite, al dar avante con el timón adecuado:",
+["Abrir la popa del muelle.","Abrir la proa del muelle.","Frenar la embarcación en seco.","Aumentar el calado."],0,
+"Es la maniobra clásica para separarse de un atraque de costado con viento en contra.");
+q(7,"Al atracar de costado, lo recomendable con viento que abate hacia el muelle es:",
+["Aproximarse con ángulo pequeño y muy poca velocidad, dejando que el viento acabe la maniobra.","Aproximarse con mucha velocidad y ángulo grande.","Atracar siempre de popa.","Fondear el ancla y virar."],0,
+"El viento hace el trabajo final; el exceso de velocidad provoca el golpe.");
+q(7,"Navegando con mar de proa y mal tiempo, lo adecuado suele ser:",
+["Reducir velocidad y tomar las olas con un ligero ángulo.","Aumentar la velocidad para saltar las olas.","Poner la mar exactamente por el través.","Navegar en zigzag rápido."],0,
+"Recibir la mar perpendicularmente por la proa castiga el casco y la tripulación.");
+q(7,"Correr el temporal consiste en:",
+["Navegar con la mar y el viento por la popa a velocidad controlada.","Mantener la proa al viento parado.","Fondear en mar abierta.","Navegar con la mar por el través."],0,
+"Capear es aguantar con la proa al viento; correr es huir con él.");
+q(7,"Al dar remolque a otra embarcación conviene:",
+["Comenzar muy despacio y mantener el cabo con seno para amortiguar tirones.","Tensar el cabo al máximo desde el principio.","Usar un cabo lo más corto posible.","Remolcar a la máxima potencia."],0,
+"El cabo en catenaria absorbe los golpes y evita su rotura.");
+q(7,"Ante una situación de hombre al agua, la primera acción es:",
+["Gritar la alarma, lanzar un aro y designar a alguien para no perderlo de vista.","Parar el motor y buscar los prismáticos.","Llamar por radio antes que nada.","Virar de inmediato sin avisar."],0,
+"Perder el contacto visual es lo que convierte el incidente en tragedia.");
+q(7,"Durante la recuperación de una persona en el agua, la embarcación debe:",
+["Aproximarse por sotavento de la persona y parar la hélice al acercarse.","Aproximarse a máxima velocidad.","Dejar la hélice girando hasta el último momento.","Acercarse siempre por barlovento del náufrago."],0,
+"Aproximarse con el viento de forma que el barco no abata sobre la persona y parar la máquina evita lesiones.");
+q(7,"La maniobra de Boutakov o de vuelta rápida se emplea:",
+["Para regresar al punto donde cayó una persona al agua.","Para fondear con viento fuerte.","Para dar remolque a otro buque.","Para entrar en un canal angosto."],0,
+"Otras variantes clásicas son la de Anderson y la de Williamson.");
+q(7,"El abatimiento de una embarcación se debe a:",
+["La acción del viento sobre la obra muerta.","La corriente marina.","El efecto de la hélice.","El error de la aguja."],0,
+"La deriva la produce la corriente; el abatimiento, el viento.");
+q(7,"Con dos motores, para girar sobre sí misma la embarcación puede:",
+["Dar avante con uno y atrás con el otro.","Dar avante con los dos al máximo.","Parar los dos motores.","Meter el timón a la vía."],0,
+"Es la gran ventaja de la propulsión doble en espacios reducidos.");
+q(7,"Al fondear, la maniobra correcta consiste en:",
+["Llegar al punto con arrancada mínima, largar el ancla y filar cadena mientras se cae hacia atrás.","Lanzar el ancla con mucha velocidad avante.","Largar toda la cadena de golpe.","Fondear dando avante a media máquina."],0,
+"Filar cadena mientras se retrocede tiende el ancla y favorece que muerda.");
+q(7,"Para comprobar si el ancla ha agarrado se puede:",
+["Tomar marcaciones a puntos de tierra y ver si se mantienen.","Aumentar las revoluciones avante.","Levar y volver a fondear.","Soltar el orinque."],0,
+"También sirve la alarma de fondeo del GPS o notar el tirón de la cadena.");
+q(7,"Navegar en aguas someras produce:",
+["Un aumento del calado efectivo y pérdida de gobierno, conocido como efecto de aguas someras.","Un aumento de la velocidad.","Una mejora de la maniobrabilidad.","Menos consumo de combustible."],0,
+"El barco se sienta y responde peor al timón: hay que reducir velocidad.");
+q(7,"Al varar voluntariamente para evitar un hundimiento conviene elegir:",
+["Una playa de arena limpia, resguardada y accesible.","Una costa rocosa con acantilado.","Un puerto comercial.","Un fondo de posidonia."],0,
+"Se busca minimizar daños y facilitar el rescate y el reflotamiento.");
+q(7,"La maniobra de atraque de punta o de popa exige especial cuidado con:",
+["El viento de través y el efecto de la hélice dando atrás.","La profundidad del canal de entrada.","La altura del puente de mando.","El número de defensas de proa."],0,
+"Dando atrás, la popa se desvía por el efecto evolutivo y el viento la empuja.");
+q(7,"Al navegar en un puerto, la velocidad debe ser:",
+["La mínima de gobierno, evitando producir olas que dañen a otros.","La máxima permitida por el motor.","Al menos 10 nudos para mantener rumbo.","Indiferente si no hay tráfico."],0,
+"La estela puede causar daños y es responsabilidad de quien la produce.");
+q(7,"Antes de arrancar el motor de gasolina en una embarcación conviene:",
+["Ventilar la cámara del motor para eliminar vapores explosivos.","Abrir los grifos de fondo.","Desconectar la batería.","Largar las amarras."],0,
+"Los vapores de gasolina son más pesados que el aire y se acumulan en la sentina.");
+
+/* ---------------- UT 8 · Emergencias ---------------- */
+q(8,"La llamada de socorro MAYDAY se utiliza cuando:",
+["Existe peligro grave e inminente para la embarcación o las personas.","Se necesita información meteorológica.","Se avisa de un objeto a la deriva.","Se pide un remolque sin riesgo."],0,
+"PAN PAN se emplea para urgencias sin peligro inminente para la vida.");
+q(8,"El canal de socorro en VHF es:",
+["El canal 16.","El canal 6.","El canal 70 en fonía.","El canal 9."],0,
+"El 70 se reserva para la llamada selectiva digital, no para la voz.");
+q(8,"Una llamada de socorro debe incluir, entre otros datos:",
+["Identificación, posición, naturaleza del peligro y número de personas a bordo.","Solo el nombre de la embarcación.","Solo la posición.","El nombre del propietario y la matrícula."],0,
+"También el tipo de ayuda que se solicita y cualquier información útil.");
+q(8,"La radiobaliza de localización de siniestros sirve para:",
+["Transmitir vía satélite la alerta y la posición del siniestro.","Comunicar por voz con el centro de salvamento.","Iluminar la balsa salvavidas.","Medir la profundidad."],0,
+"Suele activarse automáticamente al entrar en contacto con el agua mediante zafa hidrostática.");
+q(8,"El teléfono de emergencias que atiende también las incidencias marítimas es:",
+["El 112.","El 010.","El 091.","El 060."],0,
+"Salvamento Marítimo coordina el rescate a través de sus centros regionales.");
+q(8,"Ante una varada, la primera comprobación debe ser:",
+["Si hay vías de agua y si peligran las personas.","Si el motor arranca.","Si hay cobertura de móvil.","La hora de la próxima pleamar."],0,
+"Luego se valora el estado de la marea, el fondo y la posibilidad de reflotar.");
+q(8,"Para reflotar tras una varada en un fondo de arena conviene:",
+["Aprovechar la marea creciente y aligerar peso.","Forzar la máquina avante de inmediato.","Llenar los tanques de agua.","Fondear el ancla por la proa y tensar."],0,
+"Dar máquina sin más puede meter arena en la refrigeración y empeorar la varada.");
+q(8,"Tras un abordaje entre dos embarcaciones, lo primero es:",
+["Comprobar si hay heridos y evaluar la entrada de agua.","Intercambiar los datos del seguro.","Separar los barcos de inmediato.","Continuar la navegación."],0,
+"A veces conviene no separar los cascos si uno tapona la vía del otro.");
+q(8,"El abandono de la embarcación debe decidirse:",
+["Solo cuando resulte más seguro que permanecer a bordo.","Siempre que entre agua.","Al primer indicio de mal tiempo.","Cuando se agote el combustible."],0,
+"La regla clásica es subir a la balsa hacia arriba, nunca hacia abajo.");
+q(8,"Antes de abandonar la embarcación conviene:",
+["Lanzar la llamada de socorro, vestir chalecos y llevar el equipo de supervivencia.","Apagar la radio para ahorrar batería.","Dejar la balsa amarrada al barco.","Nadar hacia la costa cuanto antes."],0,
+"El equipo incluye agua, radiobaliza, bengalas, VHF portátil y documentación.");
+q(8,"En el agua, para conservar el calor corporal conviene adoptar:",
+["La posición fetal, con brazos y piernas recogidos.","La posición horizontal con brazos abiertos.","Nadar continuamente.","Quitarse la ropa."],0,
+"Si hay varias personas, agruparse y mantenerse en contacto conserva más calor.");
+q(8,"La hipotermia leve se manifiesta con:",
+["Temblores intensos, piel fría y torpeza en los movimientos.","Fiebre alta.","Sudoración abundante.","Aumento del ritmo cardíaco y calor."],0,
+"En fases avanzadas cesan los temblores, lo que es un signo de gravedad.");
+q(8,"Al recuperar a una persona con hipotermia:",
+["Se la manipula con suavidad, se la seca y se la abriga progresivamente.","Se le da alcohol y se la frota con fuerza.","Se la sumerge en agua muy caliente.","Se la hace correr por cubierta."],0,
+"Los movimientos bruscos pueden desencadenar arritmias graves.");
+q(8,"Ante una persona inconsciente que respira, la posición adecuada es:",
+["La posición lateral de seguridad.","Sentada con la cabeza baja.","Boca abajo con los brazos extendidos.","De pie, sujeta por dos personas."],0,
+"Evita la obstrucción de la vía aérea por la lengua o por un vómito.");
+q(8,"El mareo o cinetosis se previene:",
+["Manteniendo la vista en el horizonte, al aire libre y evitando comidas pesadas.","Bajando a la cabina a leer.","Ayunando por completo.","Permaneciendo en la sentina."],0,
+"Situarse en el centro del barco, donde el movimiento es menor, también ayuda.");
+q(8,"Ante una quemadura leve a bordo, lo indicado es:",
+["Enfriar con agua limpia y cubrir sin romper las ampollas.","Aplicar hielo directamente.","Untar aceite o pasta dentífrica.","Romper las ampollas para que drenen."],0,
+"El agua de mar no es estéril: si es posible, se usa agua dulce limpia.");
+q(8,"Si se produce una vía de agua por la bocina:",
+["Se aprieta el prensaestopas o se taponan las fugas y se achica.","Se abren los grifos de fondo.","Se aumenta la velocidad.","Se para la bomba de achique."],0,
+"Conviene tener tapones cónicos de madera junto a cada pasacascos.");
+q(8,"Una zafa hidrostática permite:",
+["Liberar automáticamente la balsa cuando el barco se hunde.","Inflar el chaleco manualmente.","Activar la bomba de achique.","Cerrar los grifos de fondo a distancia."],0,
+"Actúa por presión del agua a unos pocos metros de profundidad.");
+q(8,"La señal PAN PAN indica:",
+["Un mensaje de urgencia relativo a la seguridad de un buque o una persona sin peligro inminente.","Un peligro grave e inminente.","Un aviso meteorológico.","El fin de una situación de emergencia."],0,
+"Si la situación se agrava, se pasa a MAYDAY.");
+q(8,"Ante un fallo total del gobierno se puede:",
+["Gobernar con el timón de emergencia o con la máquina y las velas.","Fondear siempre de inmediato.","Abandonar la embarcación.","Aumentar la velocidad."],0,
+"Muchas embarcaciones llevan una caña de emergencia acoplable a la mecha.");
+
+/* ---------------- UT 9 · Meteorología ---------------- */
+q(9,"Las isobaras son líneas que unen puntos de igual:",
+["Presión atmosférica.","Temperatura.","Humedad relativa.","Altura de ola."],0,
+"Cuanto más juntas están, mayor es el gradiente y más fuerte el viento.");
+q(9,"En el hemisferio norte, el viento gira alrededor de una borrasca:",
+["En sentido contrario a las agujas del reloj.","En el sentido de las agujas del reloj.","Siempre de norte a sur.","Siempre hacia el centro en línea recta."],0,
+"En el anticiclón gira en el sentido de las agujas del reloj.");
+q(9,"En el hemisferio norte, el viento alrededor de un anticiclón gira:",
+["En el sentido de las agujas del reloj.","En sentido contrario a las agujas del reloj.","De este a oeste siempre.","Radialmente hacia el centro."],0,
+"El anticiclón es divergente en superficie y trae tiempo estable.");
+q(9,"Un anticiclón se asocia generalmente a:",
+["Tiempo estable y cielos despejados.","Lluvias intensas.","Vientos huracanados.","Formación de frentes fríos."],0,
+"Las borrascas son las que traen mal tiempo, nubosidad y precipitación.");
+q(9,"La presión atmosférica normal a nivel del mar es del orden de:",
+["1013 hectopascales.","760 hectopascales.","1013 milímetros de mercurio.","500 hectopascales."],0,
+"Equivale a 760 mm de mercurio; por debajo de 1000 hPa se habla de baja presión.");
+q(9,"Una bajada rápida del barómetro anuncia normalmente:",
+["Empeoramiento del tiempo y aumento del viento.","Mejoría inmediata.","Calma absoluta.","Niebla persistente."],0,
+"El ritmo de caída importa tanto como el valor absoluto.");
+q(9,"El paso de un frente frío suele traer:",
+["Chubascos intensos, racha de viento y descenso de temperatura.","Lluvia continua y suave durante horas.","Cielos despejados y calma.","Niebla de advección."],0,
+"El frente cálido trae lluvia más suave y prolongada, con nubes estratiformes.");
+q(9,"Un frente ocluido se forma cuando:",
+["El frente frío alcanza al cálido y lo levanta del suelo.","Dos anticiclones se unen.","Una borrasca se desplaza sobre el mar.","El viento cambia de dirección bruscamente."],0,
+"Es la fase final del ciclo de vida de una borrasca.");
+q(9,"La escala Beaufort mide:",
+["La fuerza del viento.","El estado de la mar.","La altura de las olas.","La presión atmosférica."],0,
+"El estado de la mar se mide con la escala Douglas.");
+q(9,"Un viento de fuerza 7 en la escala Beaufort se denomina:",
+["Viento fuerte.","Brisa suave.","Temporal huracanado.","Calma."],0,
+"Fuerza 8 es temporal, 9 temporal fuerte, 10 temporal duro y 12 huracán.");
+q(9,"Se dice que el viento rola cuando:",
+["Cambia de dirección.","Aumenta de intensidad.","Disminuye de intensidad.","Se mantiene constante."],0,
+"Si pierde intensidad se dice que cae o amaina.");
+q(9,"La brisa de mar o virazón sopla:",
+["Del mar hacia la tierra, durante el día.","De la tierra hacia el mar, durante el día.","Del mar hacia la tierra, de noche.","Siempre del norte."],0,
+"De noche se invierte y sopla de tierra a mar: es el terral.");
+q(9,"El mar de fondo o mar tendida se caracteriza por:",
+["Olas largas y regulares generadas por un viento lejano o ya cesado.","Olas cortas y desordenadas del viento local.","Ausencia total de olas.","Olas que rompen solo en la costa."],0,
+"El mar de viento es el generado por el viento que sopla en ese momento y lugar.");
+q(9,"El fetch es:",
+["La distancia sobre la que sopla el viento sin obstáculos generando olas.","El periodo de la ola.","La altura máxima de la ola.","La velocidad de propagación del oleaje."],0,
+"A mayor fetch, mayor desarrollo del oleaje para un mismo viento.");
+q(9,"La escala Douglas mide:",
+["El estado de la mar.","La fuerza del viento.","La visibilidad.","La nubosidad."],0,
+"Distingue entre mar de viento y mar de fondo, con grados de 0 a 9.");
+q(9,"La niebla de advección se forma cuando:",
+["Aire cálido y húmedo se desplaza sobre una superficie más fría.","El suelo se enfría por la noche bajo cielo despejado.","El aire asciende por una montaña.","Se mezclan dos masas de aire seco."],0,
+"Es la niebla marina típica y puede persistir con viento moderado.");
+q(9,"El punto de rocío es la temperatura a la que:",
+["El aire se satura de vapor y comienza a condensar.","El agua del mar se congela.","La presión alcanza los 1013 hPa.","El viento cambia de dirección."],0,
+"Cuando la temperatura del aire se acerca al punto de rocío, hay riesgo de niebla.");
+q(9,"Los cumulonimbos se asocian a:",
+["Tormentas, chubascos fuertes y rachas de viento.","Buen tiempo estable.","Niebla persistente.","Calma total."],0,
+"Su yunque característico avisa de la tormenta antes de que llegue.");
+q(9,"La pleamar es:",
+["El momento de máxima altura de la marea.","El momento de mínima altura.","El intervalo entre dos bajamares.","La diferencia entre pleamar y bajamar."],0,
+"La diferencia entre pleamar y bajamar consecutivas es la amplitud o carrera de marea.");
+q(9,"El repunte de la marea es:",
+["El momento en que la marea se detiene antes de cambiar de sentido.","La máxima velocidad de la corriente.","La diferencia de altura entre dos puertos.","El coeficiente de la marea."],0,
+"Es el intervalo de agua parada, útil para maniobrar en zonas de corriente.");
+q(9,"Las mareas vivas se producen:",
+["En luna nueva y luna llena.","En cuarto creciente y menguante.","Solo en verano.","Con viento del sur."],0,
+"En cuadratura, con los cuartos, se producen las mareas muertas, de menor amplitud.");
+q(9,"El coeficiente de marea indica:",
+["La mayor o menor amplitud de la marea de ese día.","La velocidad de la corriente en nudos.","La altura del oleaje.","La presión atmosférica."],0,
+"Coeficientes altos, cercanos a 120, corresponden a mareas vivas.");
+q(9,"Un parte meteorológico que anuncia temporal en una zona indica vientos de:",
+["Fuerza 8 en la escala Beaufort.","Fuerza 5.","Fuerza 12.","Fuerza 3."],0,
+"El aviso de temporal fuerte corresponde a fuerza 9.");
+q(9,"Los cirros son nubes:",
+["Altas y filamentosas, formadas por cristales de hielo.","Bajas y compactas de lluvia.","De desarrollo vertical.","Que se forman al nivel del mar."],0,
+"Su aparición progresiva suele preceder a la llegada de un frente cálido.");
+
+/* ---------------- UT 10 · Teoría de navegación ---------------- */
+q(10,"Una milla náutica equivale a:",
+["1852 metros, un minuto de arco de meridiano.","1000 metros.","1609 metros.","2000 metros."],0,
+"Por eso las distancias se miden siempre en la escala de latitud de la carta.");
+q(10,"Un nudo es:",
+["Una milla náutica por hora.","Un kilómetro por hora.","Una milla por minuto.","Una braza por segundo."],0,
+"No se dice nudos por hora: el nudo ya incluye la unidad de tiempo.");
+q(10,"La latitud de un punto se mide:",
+["Desde el ecuador hacia el polo, de 0 a 90 grados.","Desde el meridiano de Greenwich.","Desde el polo norte hacia el sur, de 0 a 180 grados.","Desde la costa más próxima."],0,
+"La longitud se mide desde Greenwich, de 0 a 180 grados a levante o a poniente.");
+q(10,"La longitud de un punto se mide:",
+["Desde el meridiano de Greenwich, de 0 a 180 grados.","Desde el ecuador.","Desde el polo norte.","Desde el meridiano local."],0,
+"Se expresa como este u oeste según la banda en que se encuentre.");
+q(10,"Los paralelos son:",
+["Círculos menores paralelos al ecuador, salvo el propio ecuador.","Círculos máximos que pasan por los polos.","Líneas que unen puntos de igual longitud.","Líneas de igual declinación magnética."],0,
+"Los meridianos son semicírculos máximos que unen los polos.");
+q(10,"La diferencia de latitud entre dos puntos se mide:",
+["Sumando o restando las latitudes según estén en el mismo hemisferio o en distintos.","Multiplicando las latitudes.","Siempre restando la menor de la mayor.","Sumando siempre ambas latitudes."],0,
+"Se suman cuando están en hemisferios distintos y se restan cuando están en el mismo.");
+q(10,"El rumbo verdadero se mide respecto:",
+["Al norte verdadero o geográfico.","Al norte magnético.","Al norte de la aguja.","A la proa del buque."],0,
+"El magnético se refiere al norte magnético y el de aguja, al norte de la aguja del barco.");
+q(10,"La declinación magnética es:",
+["El ángulo entre el norte verdadero y el norte magnético.","El ángulo entre el norte magnético y el de la aguja.","El error del compás por escora.","La diferencia entre rumbo y demora."],0,
+"El desvío es el ángulo entre el norte magnético y el norte de la aguja.");
+q(10,"El desvío de la aguja se debe a:",
+["El magnetismo propio de la embarcación.","El campo magnético terrestre.","La velocidad del buque.","La latitud del observador."],0,
+"Varía con el rumbo y se recoge en la tablilla de desvíos.");
+q(10,"La corrección total es:",
+["La suma algebraica de la declinación magnética y el desvío.","La diferencia entre rumbo y demora.","El error de la corredera.","La suma de abatimiento y deriva."],0,
+"Se aplica sumando para pasar de aguja a verdadero: Rv = Ra + Ct.");
+q(10,"Para pasar de rumbo de aguja a rumbo verdadero:",
+["Se suma algebraicamente la corrección total.","Se resta la corrección total.","Se suma el abatimiento.","Se resta la declinación solamente."],0,
+"Y a la inversa, Ra = Rv menos Ct.");
+q(10,"Si el rumbo de aguja es 090 y la corrección total es menos 5 grados, el rumbo verdadero es:",
+["085.","095.","085 pero magnético.","090."],0,
+"Rv = Ra + Ct = 090 + (−5) = 085.");
+q(10,"La declinación magnética que figura en la carta:",
+["Debe actualizarse al año de uso aplicando su variación anual.","Es válida indefinidamente.","Solo se aplica en navegación de altura.","Coincide siempre con el desvío."],0,
+"La rosa de la carta indica el año de referencia y el cambio anual.");
+q(10,"La demora verdadera de un punto es:",
+["El ángulo entre el norte verdadero y la visual al punto.","El ángulo entre la proa y la visual al punto.","El rumbo que hay que gobernar.","La distancia al punto en millas."],0,
+"El ángulo desde la proa es la marcación.");
+q(10,"La marcación de un objeto es el ángulo medido desde:",
+["La proa de la embarcación hasta la visual al objeto.","El norte verdadero.","El norte magnético.","El este."],0,
+"Demora = rumbo + marcación, ajustando el resultado a 360 grados.");
+q(10,"Si navegamos a rumbo verdadero 040 y marcamos un faro por 30 grados a estribor, su demora verdadera es:",
+["070.","010.","040.","030."],0,
+"Dv = Rv + marcación a estribor = 040 + 030 = 070.");
+q(10,"La proyección Mercator se caracteriza porque:",
+["Los meridianos y paralelos se cortan en ángulo recto y las derrotas loxodrómicas son rectas.","Los meridianos convergen en el polo.","Conserva las superficies reales.","Solo se usa en navegación aérea."],0,
+"Deforma las áreas al aumentar la latitud, pero conserva los ángulos.");
+q(10,"En una carta náutica, las distancias se miden:",
+["En la escala de latitud, a la altura del punto considerado.","En la escala de longitud.","En cualquiera de las dos indistintamente.","Con la regla graduada en centímetros."],0,
+"En la longitud el minuto no equivale a una milla salvo en el ecuador.");
+q(10,"Las sondas de una carta náutica se refieren normalmente:",
+["Al cero hidrográfico, próximo a la bajamar más baja.","Al nivel medio del mar.","A la pleamar máxima.","A la superficie en el momento del levantamiento."],0,
+"Por eso la altura de marea se suma a la sonda de la carta.");
+q(10,"La navegación de estima consiste en:",
+["Calcular la posición a partir del rumbo, la velocidad y el tiempo navegado.","Situarse por demoras a puntos de tierra.","Usar exclusivamente el GPS.","Medir la altura de los astros."],0,
+"Debe corregirse con el abatimiento y la deriva para obtener el rumbo efectivo.");
+q(10,"El rumbo efectivo o de superficie corregido por corriente es:",
+["El que realmente sigue la embarcación sobre el fondo.","El que marca la aguja.","El que se traza inicialmente en la carta.","El rumbo verdadero sin correcciones."],0,
+"Es el resultado de componer el rumbo y velocidad propios con la corriente.");
+q(10,"Si navegamos a 9 nudos durante 40 minutos, la distancia recorrida es:",
+["6 millas.","9 millas.","4 millas.","3,6 millas."],0,
+"d = v × t = 9 × 40/60 = 6 millas.");
+q(10,"Para recorrer 15 millas a 10 nudos se emplea:",
+["1 hora y 30 minutos.","1 hora y 5 minutos.","2 horas.","45 minutos."],0,
+"t = d / v = 15/10 = 1,5 horas.");
+q(10,"Una línea de posición es:",
+["El lugar geométrico donde se encuentra la embarcación según una observación.","El rumbo trazado en la carta.","La derrota prevista.","La línea de la costa."],0,
+"El corte de dos líneas de posición simultáneas da la situación.");
+q(10,"Una enfilación se produce cuando:",
+["Dos puntos notables se ven alineados desde la embarcación.","Dos demoras se cortan en ángulo recto.","Se navega paralelo a la costa.","El faro queda por el través."],0,
+"Es la línea de posición más precisa porque no depende del compás.");
+q(10,"El error más frecuente al trasladar un rumbo con la regla paralela es:",
+["Perder el paralelismo al desplazarla sobre la carta.","Medir en la escala de latitud.","Usar lápiz de mina dura.","Trazar la línea demasiado corta."],0,
+"Conviene comprobar el rumbo en dos rosas distintas antes de darlo por bueno.");
+
+/* ---------------- UT 11 · Carta de navegación ---------------- */
+q(11,"Para situar un punto en la carta por sus coordenadas se emplean:",
+["El compás de puntas y las escalas de latitud y longitud.","Únicamente el transportador.","La corredera y el sondador.","La tablilla de desvíos."],0,
+"La latitud se toma en la escala vertical y la longitud en la horizontal.");
+q(11,"Al medir una distancia en la carta con el compás de puntas se debe:",
+["Llevar la abertura a la escala de latitud, a la altura de la zona medida.","Llevarla a la escala de longitud.","Usar la escala gráfica de kilómetros.","Medir con una regla milimetrada."],0,
+"En Mercator la escala de latitud varía con la latitud: por eso se mide a esa altura.");
+q(11,"Para trazar un rumbo entre dos puntos de la carta se emplea:",
+["La regla paralela o el transportador, referidos a la rosa náutica.","El compás de puntas exclusivamente.","La escala de longitud.","El anuario de mareas."],0,
+"La rosa exterior da rumbos verdaderos y la interior, magnéticos.");
+q(11,"En la carta náutica, la rosa exterior indica:",
+["Los rumbos verdaderos.","Los rumbos magnéticos.","Los rumbos de aguja.","Las marcaciones."],0,
+"La rosa interior da los magnéticos y lleva anotada la declinación y su variación anual.");
+q(11,"Para obtener la situación por dos demoras simultáneas:",
+["Se trazan ambas demoras desde sus puntos y la situación es su intersección.","Se traza la media de las dos demoras.","Se usa solo la demora más próxima.","Se traza una paralela a la costa."],0,
+"Conviene que se corten en un ángulo próximo a 90 grados para mayor precisión.");
+q(11,"Si se toman tres demoras y no se cortan en un punto, se forma:",
+["Un triángulo de error.","Una enfilación.","Una loxodrómica.","Una isobata."],0,
+"Indica error en las demoras o en la corrección total aplicada.");
+q(11,"La situación por demora y distancia a un punto notable se obtiene:",
+["Trazando la demora y midiendo sobre ella la distancia desde el punto.","Trazando dos rumbos paralelos.","Midiendo en la escala de longitud.","Con el anuario de mareas."],0,
+"La distancia puede obtenerse por radar o por la elevación angular del faro.");
+q(11,"La sonda que figura en la carta indica:",
+["La profundidad referida al cero hidrográfico.","La profundidad real en cualquier momento.","La altura de la marea.","El calado máximo permitido."],0,
+"La profundidad real es la sonda de la carta más la altura de marea del momento.");
+q(11,"Para saber si se puede pasar sobre un bajo a una hora determinada se necesita:",
+["La sonda de la carta, la altura de marea y el calado de la embarcación.","Solo la sonda de la carta.","Solo el calado.","La velocidad y el rumbo."],0,
+"Conviene añadir además un margen de seguridad bajo la quilla.");
+q(11,"Las isobatas o veriles de una carta son:",
+["Líneas que unen puntos de igual profundidad.","Líneas de igual declinación.","Los límites de las zonas de baño.","Las derrotas recomendadas."],0,
+"Ayudan a hacerse una idea rápida del relieve del fondo.");
+q(11,"El resguardo o margen de seguridad bajo la quilla sirve para:",
+["Cubrir imprecisiones de la sonda, la marea y el oleaje.","Aumentar la velocidad.","Reducir el consumo.","Mejorar la estabilidad."],0,
+"Con mar de fondo, el barco puede descender varios decímetros al pasar el seno de la ola.");
+q(11,"En el ejercicio de carta, para pasar de una demora de aguja a demora verdadera:",
+["Se suma algebraicamente la corrección total.","Se resta el abatimiento.","Se suma la deriva.","No hace falta corrección alguna."],0,
+"Es la misma operación que con los rumbos: Dv = Da + Ct.");
+q(11,"Si sobre la carta se traza el rumbo verdadero y existe corriente, para obtener el rumbo efectivo:",
+["Se compone el vector del rumbo y velocidad propios con el de la corriente.","Se suma la velocidad de la corriente a la propia sin más.","Se ignora la corriente si es menor de 2 nudos.","Se resta la deriva al rumbo."],0,
+"El extremo de la resultante marca la posición al cabo de una hora.");
+q(11,"El abatimiento se aplica en la carta:",
+["Corrigiendo el rumbo hacia la banda opuesta a la que sopla el viento.","Sumándolo siempre.","Restándolo siempre.","Solo si hay corriente."],0,
+"El barco se desplaza hacia sotavento, así que hay que apuntar más a barlovento.");
+q(11,"La carta que se entrega en el examen del PER corresponde a:",
+["La zona del Estrecho de Gibraltar.","El golfo de Vizcaya.","Las islas Canarias.","El delta del Ebro."],0,
+"Es la carta de prácticas número 105 del Instituto Hidrográfico de la Marina.");
+q(11,"En el ejercicio de carta del examen del PER se permiten como máximo:",
+["2 errores.","5 errores.","1 error.","3 errores."],0,
+"Son 4 preguntas y superar los 2 errores implica no apto, aunque el resto vaya bien.");
+q(11,"Para calcular la hora estimada de llegada a un punto de la derrota:",
+["Se mide la distancia en la carta y se divide entre la velocidad prevista.","Se multiplica la distancia por la velocidad.","Se suma el rumbo a la hora de salida.","Se consulta el anuario de mareas."],0,
+"Se suma el tiempo resultante a la hora de salida, cuidando el cambio de huso.");
+q(11,"Al trabajar sobre la carta conviene usar:",
+["Lápiz de mina dura y goma blanda, para no dañar el papel.","Bolígrafo permanente.","Rotulador grueso.","Tinta china."],0,
+"La carta se reutiliza y las marcas deben poder borrarse sin dejar surcos.");
+q(11,"La escala de una carta 1:50.000 significa que:",
+["Una unidad en la carta equivale a 50.000 en la realidad.","La carta cubre 50.000 millas.","Hay 50.000 sondas representadas.","La carta se actualiza cada 50.000 días."],0,
+"A menor denominador, mayor detalle: una 1:25.000 es más detallada que una 1:100.000.");
+q(11,"Si la sonda de la carta en un punto es 3 metros, la altura de marea es 1,5 metros y el calado del barco 2 metros, el margen bajo la quilla es:",
+["2,5 metros.","1 metro.","4,5 metros.","0,5 metros."],0,
+"Profundidad real = 3 + 1,5 = 4,5 m; margen = 4,5 − 2 = 2,5 m.");
+q(11,"Trabajando la carta, si el rumbo verdadero es 250 y la corrección total es más 4 grados, el rumbo de aguja a gobernar es:",
+["246.","254.","250.","244."],0,
+"Ra = Rv − Ct = 250 − 4 = 246.");
+q(11,"La derrota trazada en la carta debe comprobarse para verificar:",
+["Que no corta ningún bajo, veril peligroso ni zona prohibida.","Únicamente que sea la más corta.","Que coincida con el rumbo magnético.","Que pase cerca de la costa."],0,
+"Una derrota correcta es la que se puede navegar con seguridad, no la más directa.");
+
 /* ============================================================
    ESTADO Y ALMACENAMIENTO
    ============================================================ */
@@ -1372,6 +2294,8 @@ function go(v){
   if(v==="inicio") paintInicio();
   if(v==="progreso") paintProgreso();
   if(v==="plan") paintPlan();
+  const vp = document.getElementById("volver-plan");
+  if(vp) vp.classList.toggle("on", v!=="plan");
 }
 document.addEventListener("click",e=>{
   const b = e.target.closest("[data-go]");
@@ -1498,8 +2422,14 @@ function ficha(n){
 let S = null;
 function startTema(ut,n){
   let pool = ut ? byUt(ut) : Q.slice();
+  /* rotación: primero las que menos veces han salido, y dentro de cada
+     grupo al azar. Así no se repite ninguna hasta agotar el banco. */
+  if(!ST.vistas) ST.vistas = {};
   pool = shuffle(pool.slice());
+  pool.sort((a,b)=>((ST.vistas[a.id]||0)-(ST.vistas[b.id]||0)));
   if(n>0) pool = pool.slice(0,n);
+  pool.forEach(x=>{ ST.vistas[x.id] = (ST.vistas[x.id]||0)+1; });
+  save();
   S = {modo:"tema", ut:ut, items:pool.map(x=>x.id), ans:[], i:0, instant:true, tag:(ut?("UT "+ut+" · "+UT.find(u=>u.n===ut).t):"Todas las unidades")};
   runStart();
 }
@@ -1645,7 +2575,9 @@ function corregir(qs, ans, tipo){
 }
 function paintResult(res, qs, ans, auto){
   const letras=["a","b","c","d"];
-  let h = "";
+  let h = `<div class="row" style="margin-bottom:16px">
+    <button class="btn ghost sm" data-go="plan">← Mi plan de estudio</button>
+  </div>`;
   if(res.apto!==null){
     h += `<div class="panel chart">`;
     h += `<p class="verdict ${res.apto?"apto":"no"}">${res.apto?"APTO":"NO APTO"}</p>`;
@@ -2264,7 +3196,11 @@ $("#r-end").onclick = ()=>{
   if(sin && !confirm("Quedan "+sin+" preguntas sin contestar y contarán como error. ¿Corregir de todas formas?")) return;
   endRun(false);
 };
-$("#r-quit").onclick = ()=>{ if(S.timer) clearInterval(S.timer); go(S.modo==="examen"?"examen":"tests"); };
+$("#r-quit").onclick = ()=>{
+  if(S.timer) clearInterval(S.timer);
+  if(S.plan){ S.plan = null; go("plan"); return; }
+  go(S.modo==="examen"?"examen":"tests");
+};
 ["#c-ra","#c-dm","#c-de","#c-ab"].forEach(s=> $(s).addEventListener("input",calcRumbos));
 ["#v-d","#v-v","#v-t"].forEach(s=> $(s).addEventListener("input",calcVTD));
 ["#s-son","#s-mar","#s-cal","#s-seg"].forEach(s=> $(s).addEventListener("input",calcSonda));
@@ -2717,19 +3653,39 @@ function plAvisos(D){
 }
 
 /* ---------- calendario ---------- */
+function plEtiqueta(b){
+  if(!b) return "";
+  if(b.sim) return "Examen";
+  if(b.u) return "UT "+b.u;
+  return "Repaso";
+}
+/* qué bloques se marcaron cada día */
+function plMapaHechos(){
+  const m = {};
+  for(const id in PL.hechos){
+    const k = PL.hechos[id], b = PLAN[+id-1];
+    if(!b) continue;
+    (m[k] = m[k] || []).push(b);
+  }
+  return m;
+}
+
 function plCalendario(C){
   const hoy = plHoy();
   const ini = fpar(PL.ini);
+  const hechosPorDia = plMapaHechos();
   let ult = C.fin;
   if(PL.examen && fpar(PL.examen) > ult) ult = fpar(PL.examen);
+  const kfin = fkey(C.fin);
 
   let h = `<div class="panel">
     <div class="pl-leyenda">
-      <span><i class="lg v"></i> cupo cumplido</span>
+      <span><i class="lg v"></i> hecho</span>
       <span><i class="lg n"></i> a medias</span>
       <span><i class="lg r"></i> día perdido</span>
       <span><i class="lg g"></i> descanso</span>
-      <span><i class="lg f"></i> por delante</span>
+      <span><i class="lg f"></i> previsto</span>
+      <span><i class="lg x"></i> último día del plan</span>
     </div>`;
 
   let cur = new Date(ini.getFullYear(), ini.getMonth(), 1);
@@ -2744,22 +3700,39 @@ function plCalendario(C){
     for(let n=1; n<=nd; n++){
       const dt = new Date(cur.getFullYear(), cur.getMonth(), n), k = fkey(dt);
       const desc = PL.desc.indexOf(dt.getDay()) > -1;
-      const hechos = plHechosEl(k);
-      const prev = (C.mapa[k] || []).length;
-      let cls = "pl-d", tip = "";
-      if(PL.examen && k === PL.examen){ cls += " ex"; tip = "Examen"; }
-      else if(dt < ini || dt > ult){ cls += " vac"; }
-      else if(hechos){ cls += (hechos >= PL.bd ? " v" : " n"); tip = hechos + (hechos===1?" bloque":" bloques"); }
-      else if(desc){ cls += " g"; }
-      else if(dt < hoy){ cls += " r"; tip = "sin hacer"; }
-      else if(prev){ cls += " f"; tip = prev + (prev===1?" bloque":" bloques"); }
-      else { cls += " vac2"; }
+      const hechos = hechosPorDia[k] || [];
+      const prev = C.mapa[k] || [];
+      let cls = "pl-d", eti = "", tit = "";
+
+      if(PL.examen && k === PL.examen){
+        cls += " ex"; eti = "EXAMEN"; tit = "Día del examen";
+      } else if(dt < ini || dt > ult){
+        cls += " vac";
+      } else if(hechos.length){
+        cls += (hechos.length >= PL.bd ? " v" : " n");
+        eti = hechos.length > 1 ? (hechos.length+" bloques") : plEtiqueta(hechos[0]);
+        tit = hechos.map(b=>"Bloque "+b.id+": "+b.t).join(" · ");
+      } else if(desc){
+        cls += " g"; eti = "—";
+      } else if(dt < hoy){
+        cls += " r"; eti = "perdido"; tit = "Día de estudio sin hacer";
+      } else if(prev.length){
+        cls += " f";
+        eti = prev.length > 1 ? (prev.length+" bloques") : plEtiqueta(prev[0]);
+        tit = prev.map(b=>"Bloque "+b.id+": "+b.t).join(" · ");
+      } else {
+        cls += " vac2";
+      }
+      if(k === kfin && !(PL.examen && k === PL.examen)){ cls += " fin"; if(!eti) eti = "FIN"; tit = "Último día del plan"; }
       if(k === fkey(hoy)) cls += " hoy";
-      h += `<div class="${cls}" title="${tip}"><span>${n}</span>${tip?`<em>${tip}</em>`:""}</div>`;
+      h += `<div class="${cls}" title="${tit}"><span>${n}</span>${eti?`<em>${eti}</em>`:""}</div>`;
     }
     h += `</div></div>`;
     cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
   }
+  h += `<p style="font-size:12.5px;color:var(--tinta2);margin:4px 0 0">
+    Cada casilla lleva la unidad que toca ese día. El plan termina el <b>${fcorta(C.fin)}</b>${PL.examen?(" y el examen es el "+fcorta(fpar(PL.examen))):""}.
+  </p>`;
   return h + `</div>`;
 }
 
@@ -2818,7 +3791,16 @@ function plRitmo(D){
       <div><label class="fld" for="pl-ex">Fecha del examen (opcional)</label><input class="in" id="pl-ex" type="date" value="${PL.examen||""}"></div>
     </div>
 
-    <div class="row" style="margin-top:18px">
+    <label class="fld" style="margin-top:22px">Mi progreso</label>
+    <p style="font-size:12.5px;color:var(--tinta2);margin:0 0 10px">
+      El avance se guarda en este navegador. Para llevártelo a otro dispositivo, cópialo aquí y pégalo allí.
+    </p>
+    <div class="row">
+      <button class="btn ghost sm" onclick="plExportar()">Copiar mi progreso</button>
+      <button class="btn ghost sm" onclick="plImportar()">Pegar un progreso guardado</button>
+    </div>
+
+    <div class="row" style="margin-top:22px">
       <button class="btn" onclick="plGuardar()">Guardar fechas</button>
       <button class="btn ghost" onclick="plCorrer()">Perdonar lo atrasado y seguir desde hoy</button>
       <button class="btn ghost" onclick="plReset()">Empezar el plan de cero</button>
@@ -3011,6 +3993,36 @@ function plMarcar(id){
   else PL.hechos[id] = fkey(plHoy());
   savePL(); paintPlan();
 }
+function plExportar(){
+  const datos = JSON.stringify({plan:PL, aula:ST});
+  const txt = "PER1:" + btoa(unescape(encodeURIComponent(datos)));
+  try{
+    navigator.clipboard.writeText(txt);
+    alert("Progreso copiado al portapapeles.\n\nPégalo en el otro dispositivo con \"Pegar un progreso guardado\".");
+  }catch(e){
+    prompt("Copia este texto y guárdalo:", txt);
+  }
+}
+function plImportar(){
+  const txt = prompt("Pega aquí el progreso que copiaste en el otro dispositivo:");
+  if(!txt) return;
+  try{
+    const limpio = txt.trim().replace(/^PER1:/, "");
+    const datos = JSON.parse(decodeURIComponent(escape(atob(limpio))));
+    if(!datos.plan) throw new Error("formato");
+    PL = Object.assign({ini:fkey(plHoy()), desde:null, bd:1, desc:[5,6], hechos:{}, notas:{}, estricto:true, examen:null}, datos.plan);
+    if(!PL.desde) PL.desde = PL.ini;
+    if(datos.aula){
+      ST = Object.assign(ST, datos.aula);
+      UT.forEach(u=>{ if(!ST.stats[u.n]) ST.stats[u.n]={ok:0,ko:0}; });
+      save();
+    }
+    savePL(); paintPlan();
+    alert("Progreso restaurado: " + Object.keys(PL.hechos).length + " bloques.");
+  }catch(e){
+    alert("Ese texto no parece un progreso válido. Cópialo entero, incluido el PER1: del principio.");
+  }
+}
 function plEstricto(){
   PL.estricto = !PL.estricto; savePL(); paintPlan();
 }
@@ -3062,5 +4074,9 @@ document.addEventListener("keydown",e=>{
   if(k>=0){ const b = $("#r-opts").children[k]; if(b && !b.disabled) b.click(); }
 });
 </script>
+<button id="volver-plan" onclick="go('plan')" title="Volver a mi plan de estudio">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M7 3v4M17 3v4M4 9h16M5 5h14v16H5z"/></svg>
+  <span>Mi plan</span>
+</button>
 </body>
 </html>
