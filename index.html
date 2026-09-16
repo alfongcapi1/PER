@@ -186,6 +186,68 @@ button.btn.sm{padding:7px 12px;font-size:13.5px}
 .pl-ev{margin-top:11px;padding:10px 12px;background:var(--agua);border-radius:5px;font-size:12.8px;color:var(--tinta2);line-height:1.5}
 .pl-ev b{color:var(--tinta)}
 .pl-lock{font-size:12.5px;color:var(--tinta2);margin:11px 0 0;font-style:italic}
+.pl-marca{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:12px}
+.pl-marca div{text-align:center}
+.pl-marca b{display:block;font-family:var(--serif);font-size:26px;line-height:1.1;color:var(--tinta)}
+.pl-marca span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--tinta2)}
+.pl-leyenda{display:flex;flex-wrap:wrap;gap:14px;font-size:11.5px;color:var(--tinta2);margin-bottom:18px}
+.pl-leyenda span{display:flex;align-items:center;gap:5px}
+.lg{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid var(--veril)}
+.lg.v{background:#CFE9DC;border-color:#7FBFA2}
+.lg.n{background:#FBE7C6;border-color:#E2B45F}
+.lg.r{background:#F7DADF;border-color:#DE93A0}
+.lg.g{background:var(--agua2)}
+.lg.f{background:var(--papel2)}
+.pl-mes{margin-bottom:20px}
+.pl-mes-t{font-family:var(--serif);font-size:17px;margin-bottom:8px}
+.pl-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.pl-dw{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--tinta3);text-align:center;padding-bottom:2px}
+.pl-d{
+  aspect-ratio:1/1;border:1px solid var(--veril);border-radius:5px;background:var(--papel2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  font-size:12px;color:var(--tinta2);overflow:hidden;padding:2px;
+}
+.pl-d span{font-weight:600;line-height:1}
+.pl-d em{font-style:normal;font-size:8.5px;line-height:1.1;text-align:center;opacity:.85}
+.pl-d.v{background:#CFE9DC;border-color:#7FBFA2;color:#14573C}
+.pl-d.n{background:#FBE7C6;border-color:#E2B45F;color:#7A4C09}
+.pl-d.r{background:#F7DADF;border-color:#DE93A0;color:#8E1F31}
+.pl-d.g{background:var(--agua2);color:var(--tinta3);border-color:transparent}
+.pl-d.f{background:var(--papel2);color:var(--tinta2)}
+.pl-d.vac{border-color:transparent;background:transparent;color:transparent}
+.pl-d.vac2{border-style:dashed;color:var(--tinta3)}
+.pl-d.ex{background:var(--magenta);border-color:var(--magenta);color:#fff}
+.pl-d.hoy{outline:2px solid var(--tinta);outline-offset:1px}
+@media (max-width:520px){ .pl-d em{display:none} .pl-d{font-size:11px} }
+.pl-hero{
+  display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  background:var(--papel2);border:1px solid var(--veril);border-left:6px solid var(--tinta3);
+  border-radius:8px;padding:22px 24px;margin-bottom:18px;color:var(--tinta3);
+}
+.pl-hero-txt{flex:1;min-width:230px;color:var(--tinta)}
+.pl-hero-k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--tinta2)}
+.pl-hero b{display:block;font-family:var(--serif);font-size:27px;line-height:1.15;margin:3px 0 5px;font-weight:600}
+.pl-hero p{margin:0;font-size:13.5px;color:var(--tinta2);line-height:1.5}
+.pl-hero-ring{flex:0 0 auto}
+.pl-hero.ok{border-left-color:var(--ok);background:#F2FAF6;color:var(--ok)}
+.pl-hero.ok b{color:var(--ok)}
+.pl-hero.half{border-left-color:var(--amar);background:#FEFAF2;color:var(--amar)}
+.pl-hero.rest{border-left-color:var(--veril);background:var(--agua);color:var(--tinta3)}
+.pl-hero:not(.ok):not(.half):not(.rest){border-left-color:var(--magenta);color:var(--magenta)}
+.pl-fases{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:20px}
+.pl-fchip{
+  display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;font:inherit;
+  border:1px solid var(--veril);background:var(--papel2);border-radius:6px;padding:10px 12px;
+}
+.pl-fchip:hover{border-color:var(--tinta3)}
+.pl-fchip.part{background:#FEFAF2}
+.pl-fchip.full{background:#F2FAF6;border-color:#9ED3B8}
+.pl-fchip-n{font-size:12.5px;font-weight:600;color:var(--tinta)}
+.pl-fchip-b{display:block;height:4px;background:var(--agua2);border-radius:2px;overflow:hidden}
+.pl-fchip-b i{display:block;height:100%;background:var(--magenta);border-radius:2px}
+.pl-fchip.full .pl-fchip-b i{background:var(--ok)}
+.pl-fchip-c{font-size:11px;color:var(--tinta2)}
+@media (max-width:520px){ .pl-hero{padding:18px} .pl-hero b{font-size:23px} }
 .pl-fase{text-align:left;cursor:pointer;width:100%}
 @media (max-width:520px){
   .pl-card{padding:14px;gap:11px}
@@ -2349,28 +2411,58 @@ function plHoy(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
    Los bloques hechos se quedan con la fecha real en la que se hicieron.
    Los pendientes se reparten desde PL.desde: si te retrasas, se van
    quedando en el pasado y aparecen como atrasados hasta que reprogrames. */
-function plCal(bd, desde){
+function plLectivos(desde, hasta){
+  let n = 0, d = new Date(desde);
+  while(d <= hasta){ if(PL.desc.indexOf(d.getDay()) === -1) n++; d = fadd(d,1); }
+  return n;
+}
+function plHechosEl(k){
+  let n = 0;
+  for(const id in PL.hechos){ if(PL.hechos[id] === k) n++; }
+  return n;
+}
+
+/* Los bloques hechos se quedan en su día real. Los pendientes se cuelgan de hoy
+   en adelante, salvo los que arrastras de días incumplidos, que salen como deuda.
+   Si vas adelantado, no hay deuda y el plan se comprime solo. */
+function plCal(bd, desdeF){
   bd = bd || PL.bd;
-  const base = fpar(desde || PL.desde);
+  const hoy = plHoy();
+  const desde = fpar(desdeF || PL.desde);
+  const ayer = fadd(hoy,-1);
+  const cupoCerrado = (desde > ayer) ? 0 : Math.min(PLAN.length, plLectivos(desde, ayer) * bd);
+  const cupoHastaHoy = Math.min(PLAN.length, plLectivos(desde, hoy) * bd);
+  const hechos = Object.keys(PL.hechos).length;
+  const deuda = Math.max(0, cupoCerrado - hechos);
+  const hechosHoy = plHechosEl(fkey(hoy));
+
   const pend = PLAN.filter(b=>!PL.hechos[b.id]);
-  PLAN.forEach(b=>{ b.fecha = PL.hechos[b.id] || null; });
+  PLAN.forEach(b=>{ b.fecha = PL.hechos[b.id] || null; b.deuda = false; });
+
   const mapa = {};
-  let i = 0, d = new Date(base), g = 0;
+  let i = 0;
+  for(; i < deuda && i < pend.length; i++){ pend[i].deuda = true; pend[i].fecha = null; }
+
+  let d = new Date(hoy), primero = true, g = 0;
   while(i < pend.length && g++ < 4000){
     if(PL.desc.indexOf(d.getDay()) === -1){
-      const hueco = []; let cupo = bd;
+      let cupo = bd - (primero ? Math.min(bd, hechosHoy) : 0);
+      const hueco = [];
       while(cupo > 0 && i < pend.length){
         const b = pend[i];
-        if(b.sim && hueco.length) break;      // el simulacro ocupa el día entero
+        if(b.sim && hueco.length) break;
         hueco.push(b); b.fecha = fkey(d); i++;
         if(b.sim) cupo = 0; else cupo--;
       }
       if(hueco.length) mapa[fkey(d)] = hueco;
     }
+    primero = false;
     d = fadd(d,1);
   }
-  const fin = pend.length ? fpar(pend[pend.length-1].fecha) : plHoy();
-  return {mapa, pend, fin};
+  const conFecha = pend.filter(b=>b.fecha);
+  const fin = conFecha.length ? fpar(conFecha[conFecha.length-1].fecha) : hoy;
+  return {mapa, pend, fin, deuda, cupoCerrado, cupoHastaHoy, hechosHoy,
+          adelanto:Math.max(0, hechos - cupoHastaHoy)};
 }
 
 /* ---------- diagnóstico ---------- */
@@ -2378,7 +2470,7 @@ function plDiag(){
   const hoy = plHoy();
   const C = plCal();
   const hechos = Object.keys(PL.hechos);
-  const atras = C.pend.filter(b => b.fecha && fpar(b.fecha) < hoy);
+  const atras = C.pend.filter(b => b.deuda);
   const minAtras = atras.reduce((s,b)=>s+b.m,0);
 
   // días desde el último bloque marcado
@@ -2399,13 +2491,13 @@ function plDiag(){
   }
 
   // cumplimiento: bloques que deberías llevar a estas alturas
-  let debidos = 0, dd = fpar(PL.ini);
-  while(dd <= hoy && debidos < PLAN.length){
+  let debidos = 0, dd = fpar(PL.ini), ayer = fadd(hoy,-1);
+  while(dd <= ayer && debidos < PLAN.length){
     if(PL.desc.indexOf(dd.getDay()) === -1) debidos += PL.bd;
     dd = fadd(dd,1);
   }
   debidos = Math.min(debidos, PLAN.length);
-  const cumpl = debidos ? Math.round(hechos.length/debidos*100) : 100;
+  const cumpl = debidos ? Math.min(100, Math.round(hechos.length/debidos*100)) : 100;
 
   // fecha de examen: ¿llego?
   let exOk = null, bdNec = null, diasEx = null;
@@ -2421,93 +2513,157 @@ function plDiag(){
 }
 
 /* ---------- pintado ---------- */
+let PLDEUDA = new Set(), PLFECHA = {};
+function plCongelar(C){
+  PLDEUDA = new Set(C.pend.filter(b=>b.deuda).map(b=>b.id));
+  PLFECHA = {};
+  PLAN.forEach(b=>{ PLFECHA[b.id] = b.fecha; });
+}
 function paintPlan(){
   const D = plDiag(), C = D.C, hoy = plHoy();
+  plCongelar(C);
   const total = PLAN.length, pc = Math.round(D.hechos/total*100);
-  const hoyB = C.mapa[fkey(hoy)] || [];
-  const teor = PLAN.filter(b=>!b.sim);
-  const medio = Math.round(teor.reduce((s,b)=>s+b.m,0)/teor.length);
+  const kh = fkey(hoy);
+  const hechosHoy = Object.keys(PL.hechos).filter(id=>PL.hechos[id]===kh).map(id=>PLAN[+id-1]).filter(Boolean);
+  const descanso = PL.desc.indexOf(hoy.getDay()) > -1;
+  const sig = C.pend.find(b=>plDisp(b.id)) || null;
+  const cupo = PL.bd;
 
   let h = "";
 
-  /* ---- avisos ---- */
-  h += plAvisos(D);
+  /* ============ LA TARJETA DEL DÍA ============ */
+  h += plHero(D, C, hechosHoy, sig, descanso, cupo);
 
-  /* ---- estado ---- */
-  h += `<div class="panel" style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">
-    <div style="flex:1;min-width:230px">
-      <h3 style="margin:0 0 4px">${D.hechos} de ${total} bloques completados</h3>
-      <div class="bar" style="height:8px"><i style="width:${pc}%"></i></div>
-      <p style="font-size:13px;color:var(--tinta2);margin:8px 0 0">
-        Bloques de ${medio} min de media · ${plural(PL.bd,"bloque","bloques")} al día ·
-        descansas ${PL.desc.map(x=>PLDIA[x]).join(" y ")} ·
-        ${D.racha?("racha de "+plural(D.racha,"día","días")):"sin racha"} ·
-        acabas el <b>${fcorta(C.fin)}</b>
-      </p>
-    </div>
-    <div style="text-align:right">
-      <div style="font-family:var(--serif);font-size:44px;line-height:1;color:var(--magenta)">${pc}<span style="font-size:20px"> %</span></div>
-      <div style="font-size:12px;color:var(--tinta2)">cumplimiento ${D.cumpl} %</div>
-    </div>
-  </div>`;
-
-  /* ---- atrasados ---- */
-  if(D.atras.length){
-    h += `<div class="panel" style="border:2px solid var(--amar)">
-      <h3 style="margin:0 0 6px;font-family:var(--serif);font-size:20px">Recuperar · ${plural(D.atras.length,"bloque","bloques")} pendientes</h3>
-      <p style="font-size:13.5px;color:var(--tinta2);margin:0 0 14px">
-        Son ${hhmm(D.minAtras)} de trabajo. Puedes hacerlos hoy además de lo de hoy, repartirlos en los próximos días, o correr el plan y seguir desde cero sin arrastrar nada.
-      </p>
-      <div class="row">
-        <button class="btn mag" onclick="plCorrer()">Correr el plan y empezar hoy</button>
-        <button class="btn ghost" onclick="plRepartir()">Repartirlos en los próximos días</button>
-      </div>
-      <p style="font-size:12.5px;color:var(--tinta3);margin:12px 0 0">
-        Correr el plan mueve el final al ${fcorta(plCal(PL.bd, fkey(hoy)).fin)} y deja los pendientes por delante.
-        Repartirlos sube a ${plural(PL.bd+1,"bloque","bloques")} al día hasta ponerte al día.
-      </p>
-      <div style="margin-top:16px">${D.atras.slice(0,4).map(b=>plBloque(b,false)).join("")}</div>
-      ${D.atras.length>4?`<p style="font-size:12.5px;color:var(--tinta2);margin:4px 0 0">Y ${D.atras.length-4} más.</p>`:""}
+  /* ============ EL SIGUIENTE BLOQUE ============ */
+  if(sig){
+    const cerrado = hechosHoy.length >= cupo;
+    h += `<h3 class="pl-h3">${cerrado ? "Si quieres seguir" : (hechosHoy.length ? "Sigue con este" : "Tu bloque de hoy")}</h3>`;
+    h += plBloque(sig, true);
+  } else {
+    h += `<div class="panel" style="text-align:center;padding:34px">
+      <div style="font-size:30px">⚓</div>
+      <b style="font-family:var(--serif);font-size:23px;display:block;margin-top:8px">Plan terminado</b>
+      <p style="font-size:13.5px;color:var(--tinta2);margin:8px 0 0">Los 82 bloques superados. Ve a los exámenes oficiales y preséntate.</p>
     </div>`;
   }
 
-  /* ---- hoy ---- */
-  h += `<h3 class="pl-h3">Hoy · ${flarga(hoy)}</h3>`;
-  if(!hoyB.length){
-    const prox = C.pend.find(b=>b.fecha && fpar(b.fecha) > hoy);
-    h += `<div class="panel"><p style="margin:0">${D.atras.length?"Hoy no tocaba nada nuevo, pero tienes bloques pendientes ahí arriba.":"Hoy toca descansar."} ${prox?("El siguiente bloque es el "+flarga(fpar(prox.fecha))+"."):""}</p></div>`;
-  } else {
-    hoyB.forEach(b=> h += plBloque(b, true));
+  /* ============ PROGRESO VISUAL ============ */
+  h += `<h3 class="pl-h3">Cómo voy</h3>
+  <div class="panel">
+    <div class="pl-marca">
+      <div><b>${D.hechos}</b><span>bloques hechos</span></div>
+      <div><b>${total - D.hechos}</b><span>por delante</span></div>
+      <div><b>${D.racha}</b><span>días seguidos</span></div>
+      <div><b>${fcorta(C.fin)}</b><span>fecha de fin</span></div>
+    </div>
+    <div class="bar" style="height:9px;margin-top:18px"><i style="width:${pc}%"></i></div>
+    <div class="pl-fases">
+      ${Object.keys(FASE).map(f=>{
+        const bs = PLAN.filter(b=>b.f===+f);
+        const dn = bs.filter(b=>PL.hechos[b.id]).length;
+        const p = Math.round(dn/bs.length*100);
+        return `<button class="pl-fchip${dn===bs.length?" full":(dn?" part":"")}" onclick="plFase(${f})">
+          <span class="pl-fchip-n">${FASE[f]}</span>
+          <span class="pl-fchip-b"><i style="width:${p}%"></i></span>
+          <span class="pl-fchip-c">${dn}/${bs.length}</span>
+        </button>`;
+      }).join("")}
+    </div>
+    <div id="pl-fase" style="margin-top:16px"></div>
+  </div>`;
+
+  /* ============ RETRASO, SI LO HAY ============ */
+  if(D.atras.length){
+    h += `<h3 class="pl-h3">Vas por detrás de tu ritmo</h3>
+    <div class="panel" style="border-left:5px solid var(--amar)">
+      <p style="font-size:14px;margin:0 0 4px">
+        Te marcaste ${plural(cupo,"bloque","bloques")} al día. Hasta ayer tocaban ${C.cupoCerrado} y llevas ${D.hechos}:
+        te faltan <b>${plural(D.atras.length,"bloque","bloques")}</b>, unas ${hhmm(D.minAtras)}.
+      </p>
+      <p style="font-size:13px;color:var(--tinta2);margin:0 0 14px">
+        No se pierde nada: el temario sigue entero y en orden. Solo hay que decidir si los recuperas o mueves la fecha de fin.
+      </p>
+      <div class="row">
+        <button class="btn mag" onclick="plRepartir()">Subir a ${plural(Math.min(4,cupo+1),"bloque","bloques")} al día</button>
+        <button class="btn ghost" onclick="plCorrer()">Dejarlo estar y seguir desde hoy</button>
+      </div>
+      <p style="font-size:12.5px;color:var(--tinta3);margin:12px 0 0">
+        Seguir desde hoy sin recuperarlos mueve el final al ${fcorta(plCal(cupo, kh).fin)}.
+      </p>
+    </div>`;
   }
 
-  /* ---- próximos ---- */
-  const prox = C.pend.filter(b=>b.fecha && fpar(b.fecha) > hoy).slice(0,4);
+  /* ============ AVISOS DE FONDO ============ */
+  h += plAvisos(D);
+
+  /* ============ LO QUE VIENE ============ */
+  const prox = C.pend.filter(b=>b.id !== (sig?sig.id:0)).slice(0,4);
   if(prox.length){
-    h += `<h3 class="pl-h3" style="font-size:20px">Lo que viene</h3>`;
+    h += `<h3 class="pl-h3">Lo que viene después</h3>`;
     prox.forEach(b=> h += plBloque(b, false, true));
   }
 
-  /* ---- fases ---- */
-  h += `<h3 class="pl-h3">El plan completo</h3><div class="grid g2">`;
-  Object.keys(FASE).forEach(f=>{
-    const bs = PLAN.filter(b=>b.f===+f);
-    const dn = bs.filter(b=>PL.hechos[b.id]).length;
-    const p = Math.round(dn/bs.length*100);
-    const mins = bs.reduce((s,b)=>s+b.m,0);
-    h += `<button class="panel pl-fase" style="border:1px solid var(--veril)" onclick="plFase(${f})">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <b style="font-family:var(--serif);font-size:18px">Fase ${f} · ${FASE[f]}</b>
-        <span style="font-size:12.5px;color:var(--tinta2)">${dn}/${bs.length}</span>
-      </div>
-      <div class="bar" style="margin-top:10px"><i style="width:${p}%"></i></div>
-      <p style="font-size:12.5px;color:var(--tinta2);margin:8px 0 0">${bs.length} bloques · ${Math.round(mins/60)} h</p>
-    </button>`;
-  });
-  h += `</div><div id="pl-fase" style="margin-top:18px"></div>`;
-
-  /* ---- ritmo y fechas ---- */
+  /* ============ RITMO Y CALENDARIO ============ */
   h += plRitmo(D);
   $("#pl-body").innerHTML = h;
+}
+
+/* ---------- la tarjeta del día ---------- */
+function plHero(D, C, hechosHoy, sig, descanso, cupo){
+  const hoy = plHoy();
+  const n = hechosHoy.length;
+  const cerrado = n >= cupo;
+  let tono, titulo, texto;
+
+  if(cerrado){
+    tono = "ok";
+    titulo = n > cupo ? "Día superado, y de sobra" : "Día de hoy superado";
+    const nombres = hechosHoy.map(b=>b.t).join(" · ");
+    const notas = hechosHoy.map(b=>PL.notas[b.id]).filter(Boolean);
+    const media = notas.length ? Math.round(notas.reduce((s,x)=>s+x.pc,0)/notas.length) : null;
+    texto = `${nombres}.` + (media!==null ? ` Aprobado con un ${media} % de aciertos.` : "");
+    if(C.adelanto > 0) texto += ` Vas ${plural(C.adelanto,"bloque","bloques")} por delante del ritmo: a este paso acabas el ${fcorta(C.fin)}.`;
+  } else if(n > 0){
+    tono = "half";
+    titulo = "Vas por "+n+" de "+cupo;
+    texto = `Te queda ${plural(cupo-n,"bloque","bloques")} para cerrar el día.`;
+  } else if(descanso){
+    tono = "rest";
+    titulo = "Hoy toca descansar";
+    texto = sig ? `Si te apetece adelantar, el siguiente es el bloque ${sig.id}: ${sig.t}.` : "";
+  } else {
+    tono = "";
+    titulo = sig ? ("Hoy te toca el bloque "+sig.id) : "Nada pendiente";
+    texto = sig ? sig.t+"." : "";
+  }
+
+  const anillo = plAnillo(Math.min(1, cupo ? n/cupo : 1), n+"/"+cupo);
+
+  return `<div class="pl-hero ${tono}">
+    <div class="pl-hero-txt">
+      <span class="pl-hero-k">${flarga(hoy)}</span>
+      <b>${titulo}</b>
+      <p>${texto}</p>
+      ${cerrado && sig ? `<div class="row" style="margin-top:14px">
+        <button class="btn mag" onclick="plTest(${sig.id})">Avanzar al bloque ${sig.id}</button>
+        <button class="btn ghost" onclick="plIr(${sig.id})">Solo leer su lección</button>
+      </div>` : ""}
+      ${(!cerrado && descanso && sig) ? `<div class="row" style="margin-top:14px">
+        <button class="btn ghost" onclick="plTest(${sig.id})">Adelantar el bloque ${sig.id}</button>
+      </div>` : ""}
+    </div>
+    <div class="pl-hero-ring">${anillo}</div>
+  </div>`;
+}
+
+function plAnillo(frac, etiqueta){
+  const r = 34, c = 2*Math.PI*r, off = c*(1-frac);
+  return `<svg viewBox="0 0 84 84" width="84" height="84" aria-hidden="true">
+    <circle cx="42" cy="42" r="${r}" fill="none" stroke="currentColor" stroke-opacity=".22" stroke-width="7"/>
+    <circle cx="42" cy="42" r="${r}" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 42 42)"/>
+    <text x="42" y="47" text-anchor="middle" font-family="var(--serif)" font-size="19" fill="currentColor">${etiqueta}</text>
+  </svg>`;
 }
 
 /* ---------- avisos ---------- */
@@ -2529,7 +2685,7 @@ function plAvisos(D){
 
   if(D.cumpl < 70 && D.debidos >= 4){
     h += av("var(--amar)", "Vas por debajo del ritmo previsto",
-      `A estas alturas deberías llevar ${D.debidos} bloques y llevas ${D.hechos}: un cumplimiento del ${D.cumpl} %. O recuperas, o conviene mover la fecha del examen para no llegar con el temario a medias.`);
+      `Hasta ayer tocaban ${D.debidos} bloques y llevas ${D.hechos}: un cumplimiento del ${D.cumpl} %. O recuperas, o conviene mover la fecha del examen para no llegar con el temario a medias.`);
   }
 
   if(PL.examen && D.exOk === false){
@@ -2560,18 +2716,82 @@ function plAvisos(D){
   return h;
 }
 
+/* ---------- calendario ---------- */
+function plCalendario(C){
+  const hoy = plHoy();
+  const ini = fpar(PL.ini);
+  let ult = C.fin;
+  if(PL.examen && fpar(PL.examen) > ult) ult = fpar(PL.examen);
+
+  let h = `<div class="panel">
+    <div class="pl-leyenda">
+      <span><i class="lg v"></i> cupo cumplido</span>
+      <span><i class="lg n"></i> a medias</span>
+      <span><i class="lg r"></i> día perdido</span>
+      <span><i class="lg g"></i> descanso</span>
+      <span><i class="lg f"></i> por delante</span>
+    </div>`;
+
+  let cur = new Date(ini.getFullYear(), ini.getMonth(), 1);
+  const tope = new Date(ult.getFullYear(), ult.getMonth(), 1);
+  const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  while(cur <= tope){
+    h += `<div class="pl-mes"><div class="pl-mes-t">${MESES[cur.getMonth()]} ${cur.getFullYear()}</div><div class="pl-grid">`;
+    ["L","M","X","J","V","S","D"].forEach(x=> h += `<div class="pl-dw">${x}</div>`);
+    const off = (new Date(cur.getFullYear(), cur.getMonth(), 1).getDay() + 6) % 7;
+    for(let z=0; z<off; z++) h += `<div class="pl-d vac"></div>`;
+    const nd = new Date(cur.getFullYear(), cur.getMonth()+1, 0).getDate();
+    for(let n=1; n<=nd; n++){
+      const dt = new Date(cur.getFullYear(), cur.getMonth(), n), k = fkey(dt);
+      const desc = PL.desc.indexOf(dt.getDay()) > -1;
+      const hechos = plHechosEl(k);
+      const prev = (C.mapa[k] || []).length;
+      let cls = "pl-d", tip = "";
+      if(PL.examen && k === PL.examen){ cls += " ex"; tip = "Examen"; }
+      else if(dt < ini || dt > ult){ cls += " vac"; }
+      else if(hechos){ cls += (hechos >= PL.bd ? " v" : " n"); tip = hechos + (hechos===1?" bloque":" bloques"); }
+      else if(desc){ cls += " g"; }
+      else if(dt < hoy){ cls += " r"; tip = "sin hacer"; }
+      else if(prev){ cls += " f"; tip = prev + (prev===1?" bloque":" bloques"); }
+      else { cls += " vac2"; }
+      if(k === fkey(hoy)) cls += " hoy";
+      h += `<div class="${cls}" title="${tip}"><span>${n}</span>${tip?`<em>${tip}</em>`:""}</div>`;
+    }
+    h += `</div></div>`;
+    cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+  }
+  return h + `</div>`;
+}
+
 /* ---------- ritmo y fechas ---------- */
 function plRitmo(D){
   const hoy = plHoy();
-  const sim = [1,2,3,4].map(n=>({n, f:plCal(n, fkey(hoy)).fin}));
-  return `<h3 class="pl-h3">Ritmo y fechas</h3>
-  <div class="panel">
-    <div class="grid g2" style="align-items:end">
-      <div><label class="fld" for="pl-ini">Empecé el</label><input class="in" id="pl-ini" type="date" value="${PL.ini}"></div>
-      <div><label class="fld" for="pl-ex">Fecha del examen (opcional)</label><input class="in" id="pl-ex" type="date" value="${PL.examen||""}"></div>
-    </div>
+  const C = D.C;
+  const sim = [1,2,3,4].map(n=>({n, f:plCal(n).fin}));
 
-    <label class="fld" style="margin-top:20px">Bloques por día</label>
+  /* estado del ritmo en una frase */
+  let est, col;
+  if(C.deuda === 0 && C.adelanto > 0){ col = "var(--ok)";  est = "Vas "+plural(C.adelanto,"bloque","bloques")+" por delante de lo previsto."; }
+  else if(C.deuda === 0){              col = "var(--ok)";  est = "Vas al día con el ritmo que te marcaste."; }
+  else if(C.deuda <= 2){               col = "var(--amar)"; est = "Arrastras "+plural(C.deuda,"bloque","bloques")+". Con una tarde lo recuperas."; }
+  else {                               col = "var(--mal)"; est = "Arrastras "+plural(C.deuda,"bloque","bloques")+", "+hhmm(D.minAtras)+" de trabajo."; }
+
+  let h = `<h3 class="pl-h3">Mi ritmo</h3>
+
+  <div class="panel" style="border-left:5px solid ${col}">
+    <div class="pl-marca">
+      <div><b>${D.hechos}</b><span>bloques hechos</span></div>
+      <div><b>${PLAN.length - D.hechos}</b><span>por delante</span></div>
+      <div><b>${D.racha}</b><span>días de racha</span></div>
+      <div><b>${D.cumpl} %</b><span>cumplimiento</span></div>
+    </div>
+    <p style="font-size:13.5px;color:var(--tinta2);margin:14px 0 0">${est} Al ritmo actual acabas el <b>${fcorta(C.fin)}</b>.</p>
+  </div>
+
+  ${plCalendario(C)}
+
+  <h3 class="pl-h3">A qué ritmo quiero ir</h3>
+  <div class="panel">
     <div class="pl-opts">
       ${sim.map(s=>`<button class="pl-opt${PL.bd===s.n?" cur":""}" onclick="plAjustar(${s.n})">
         <b>${s.n} ${s.n===1?"bloque":"bloques"}</b>
@@ -2580,28 +2800,31 @@ function plRitmo(D){
       </button>`).join("")}
     </div>
 
-    <label class="fld" style="margin-top:20px">Días de descanso</label>
+    <label class="fld" style="margin-top:22px">Días de descanso</label>
     <div class="pl-days">
       ${[1,2,3,4,5,6,0].map(d=>`<button class="pl-day${PL.desc.indexOf(d)>-1?" on":""}" onclick="plDia(${d})">${PLDIA[d]}</button>`).join("")}
     </div>
 
-    <p style="font-size:13px;color:var(--tinta2);margin:18px 0 0">
-      Las fechas se calculan empezando hoy con lo que te queda por hacer.
-      Los cinco simulacros ocupan el día entero: el examen dura 90 minutos y no se puede partir.
-    </p>
-    <label class="fld" style="margin-top:20px">Modo estricto</label>
+    <label class="fld" style="margin-top:22px">Modo estricto</label>
     <div class="pl-days">
       <button class="pl-day${PL.estricto?" on":""}" onclick="plEstricto()">${PL.estricto?"Activado: no avanzo sin aprobar":"Desactivado: puedo saltar bloques"}</button>
     </div>
     <p style="font-size:12.5px;color:var(--tinta3);margin:8px 0 0">
-      Con el modo estricto, cada bloque se cierra solo cuando superas su test, y el siguiente queda bloqueado hasta entonces. Es lo que hace que llegues al examen sin agujeros.
+      Cada bloque se cierra solo cuando superas su test. Si lo apruebas, el siguiente se abre al momento: puedes seguir el mismo día y el calendario se recoloca.
     </p>
+
+    <div class="grid g2" style="align-items:end;margin-top:22px">
+      <div><label class="fld" for="pl-ini">Empecé el</label><input class="in" id="pl-ini" type="date" value="${PL.ini}"></div>
+      <div><label class="fld" for="pl-ex">Fecha del examen (opcional)</label><input class="in" id="pl-ex" type="date" value="${PL.examen||""}"></div>
+    </div>
+
     <div class="row" style="margin-top:18px">
       <button class="btn" onclick="plGuardar()">Guardar fechas</button>
-      <button class="btn ghost" onclick="plCorrer()">Correr el plan a partir de hoy</button>
-      <button class="btn ghost" onclick="plReset()">Borrar el progreso del plan</button>
+      <button class="btn ghost" onclick="plCorrer()">Perdonar lo atrasado y seguir desde hoy</button>
+      <button class="btn ghost" onclick="plReset()">Empezar el plan de cero</button>
     </div>
   </div>`;
+  return h;
 }
 
 /* ---------- bloque ---------- */
@@ -2610,8 +2833,9 @@ function plBloque(b, destacado, compacto){
   const nota = PL.notas[b.id];
   const libre = plDisp(b.id);
   const hoy = plHoy();
-  const f = b.fecha ? fpar(b.fecha) : null;
-  const tarde = f && !done && f < hoy;
+  const fk = (b.id in PLFECHA) ? PLFECHA[b.id] : b.fecha;
+  const f = fk ? fpar(fk) : null;
+  const tarde = !done && PLDEUDA.has(b.id);
   const et = b.u ? ("UT "+b.u) : "General";
   const borde = destacado ? "border:2px solid var(--magenta)"
               : (!libre ? "border:1px dashed var(--veril)"
@@ -2621,7 +2845,7 @@ function plBloque(b, destacado, compacto){
     h += `<div class="pl-fecha"><div class="d">${f.getDate()}</div><div class="m">${PLMESC[f.getMonth()]}</div><div class="w">${PLDIAC[f.getDay()]}</div></div>`;
   }
   h += `<div style="flex:1;min-width:0">
-    <div class="pl-meta"${tarde?' style="color:var(--amar)"':''}>${et} · bloque ${b.id} de ${PLAN.length} · ${b.m} min${b.sim?" · sesión larga":""}${tarde?" · atrasado "+plural(fdif(f,hoy),"día","días"):""}</div>
+    <div class="pl-meta"${tarde?' style="color:var(--amar)"':''}>${et} · bloque ${b.id} de ${PLAN.length} · ${b.m} min${b.sim?" · sesión larga":""}${tarde?" · arrastrado":""}</div>
     <div class="pl-tit">${b.t}</div>`;
 
   if(!compacto){
@@ -2749,6 +2973,17 @@ function plRegistrar(id, qs, ans, modo){
 }
 
 /* se engancha al final de cualquier prueba del aula */
+/* Si el test viene del plan, al contestar la última pregunta se corrige
+   solo: antes se perdía la nota si salías sin pulsar "Terminar y corregir". */
+const plAnswerOrig = answer;
+answer = function(k){
+  plAnswerOrig(k);
+  if(S && S.plan && S.ans && S.ans.length && S.ans.every(a=>a!==null)){
+    const id = S.plan;
+    setTimeout(function(){ if(S && S.plan===id) endRun(false); }, 1100);
+  }
+};
+
 const plEndRunOrig = endRun;
 endRun = function(auto){
   const id  = (S && S.plan) ? S.plan : ((S && S.modo==="examen") ? PLPEND : null);
@@ -2801,7 +3036,7 @@ function plGuardar(){
 function plReset(){
   if(confirm("Se borra el progreso del plan de estudio. Tus tests y exámenes del aula no se tocan. ¿Seguro?")){
     const hoy = fkey(plHoy());
-    PL = {ini:hoy, desde:hoy, bd:1, desc:[5,6], hechos:{}, examen:null};
+    PL = {ini:hoy, desde:hoy, bd:1, desc:[5,6], hechos:{}, notas:{}, estricto:true, examen:null};
     savePL(); paintPlan();
   }
 }
@@ -2811,8 +3046,10 @@ function plFase(f){
     <h3 style="margin:0;font-family:var(--serif);font-size:20px">Fase ${f} · ${FASE[f]}</h3>
     <button class="btn ghost sm" onclick="$('#pl-fase').innerHTML=''">Cerrar</button></div></div>`;
   bs.forEach(b=> h += plBloque(b, false));
-  $("#pl-fase").innerHTML = h;
-  try{ $("#pl-fase").scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){}
+  const c = $("#pl-fase");
+  if(!c) return;
+  c.innerHTML = h;
+  try{ c.scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){}
 }
 
 calcRumbos(); calcVTD(); calcSonda(); calcDemora();
