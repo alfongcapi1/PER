@@ -166,6 +166,15 @@ button.btn.sm{padding:7px 12px;font-size:13.5px}
 #volver-plan:hover{background:var(--magenta)}
 #volver-plan.on{display:flex}
 @media (max-width:520px){ #volver-plan{right:12px;bottom:12px;padding:10px 14px;font-size:12.5px} }
+/* ---------- láminas ---------- */
+.lam-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.lam-box{color:var(--tinta)}
+.lam-wrap{background:var(--papel2);border:1px solid var(--veril);border-radius:7px;padding:14px;overflow-x:auto}
+svg.lam{width:100%;height:auto;min-width:430px;color:var(--tinta);display:block}
+.lam-claves{margin:14px 0 0;padding-left:19px;font-size:13.4px;color:var(--tinta2);line-height:1.6}
+.lam-claves li{margin:3px 0}
+.lam-link{margin-top:9px}
+
 /* ---------- plan de estudio ---------- */
 .pl-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:8px;margin-top:7px}
 .pl-opt{
@@ -629,6 +638,13 @@ ul.tight li{margin-bottom:6px;font-size:15px}
   <h2 class="title">Mi plan de estudio</h2>
   <p class="sub">El temario completo repartido en bloques cortos de media hora, uno al día, con descanso los días que elijas. Cada bloque te lleva directo a la lección, al test o al entrenador que toca.</p>
   <div id="pl-body"></div>
+</section>
+
+<!-- ================= LÁMINAS VISUALES ================= -->
+<section class="view" id="v-laminas">
+  <h2 class="title">Láminas visuales</h2>
+  <p class="sub">Los temas que más cuesta memorizar de carrerilla, dibujados. Balizamiento, luces, fuegos a bordo, zonas de navegación y canales angostos.</p>
+  <div id="lam-body"></div>
 </section>
 
 <section class="view" id="v-progreso">
@@ -2265,6 +2281,7 @@ const MENU = [
   {id:"inicio", t:"Inicio", ic:"M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"},
   {sep:"Estudiar"},
   {id:"temario", t:"Temario", ic:"M4 4h11l5 5v11H4z"},
+  {id:"laminas", t:"Láminas visuales", ic:"M3 5h18v14H3z M3 15l5-5 4 4 3-3 6 6"},
   {id:"tests", t:"Test por temas", ic:"M5 4h14v16H5zM8 9h8M8 13h8"},
   {id:"taller", t:"Taller de problemas", ic:"M4 20l7-7M14 4l6 6-3 3-6-6z"},
   {sep:"Entrenadores"},
@@ -2294,6 +2311,7 @@ function go(v){
   if(v==="inicio") paintInicio();
   if(v==="progreso") paintProgreso();
   if(v==="plan") paintPlan();
+  if(v==="laminas" && !$("#lam-body").innerHTML) paintLaminas();
   const vp = document.getElementById("volver-plan");
   if(vp) vp.classList.toggle("on", v!=="plan");
 }
@@ -2410,6 +2428,7 @@ function ficha(n){
   $("#fichabody").innerHTML = h;
   const r = $("#fichabtns");
   const b1 = el("button","btn mag","Hacer test de esta unidad"); b1.onclick=()=>startTema(n,20); r.appendChild(b1);
+  if(LAM.some(l=>l.ut===n)){ const bl=el("button","btn ghost","Ver láminas visuales"); bl.onclick=()=>lamUt(n); r.appendChild(bl); }
   if(n===5){ const b=el("button","btn ghost","Entrenador de balizamiento"); b.onclick=()=>go("baliz"); r.appendChild(b); }
   if(n===6){ const b=el("button","btn ghost","Entrenador de luces"); b.onclick=()=>go("luces"); r.appendChild(b); }
   if(n===10||n===11){ const b=el("button","btn ghost","Taller de problemas"); b.onclick=()=>go("taller"); r.appendChild(b); }
@@ -2608,7 +2627,11 @@ function paintResult(res, qs, ans, auto){
         `<p style="font-family:var(--serif);font-size:17px;margin:0 0 6px">UT ${m.q.ut} · ${m.q.q}</p>`+
         `<p style="margin:0;font-size:14.5px;color:var(--mal)">Tu respuesta: ${m.a==null?"sin contestar":letras[m.a]+") "+m.q.o[m.a]}</p>`+
         `<p style="margin:2px 0 0;font-size:14.5px;color:var(--ok)">Correcta: ${letras[m.q.r]}) ${m.q.o[m.q.r]}</p>`+
-        `<div class="expl" style="margin-top:8px">${m.q.e}</div></div>`;
+        `<div class="expl" style="margin-top:8px">${m.q.e}</div>`+
+        (LAM.some(l=>l.ut===m.q.ut)
+          ? `<div class="lam-link"><button class="btn ghost sm" onclick="lamUt(${m.q.ut})">Ver la lámina de ${UT.find(u=>u.n===m.q.ut).t}</button></div>`
+          : ``)+
+        `</div>`;
     });
     h += `</div>`;
   }else{
@@ -4063,6 +4086,350 @@ function plFase(f){
   c.innerHTML = h;
   try{ c.scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){}
 }
+
+
+/* ============================================================
+   LÁMINAS VISUALES · esquemas SVG explicativos
+   ============================================================ */
+
+/* ---- generadores de boyas ---- */
+function bFlotador(bandas, ancho, alto, forma){
+  const w = ancho, h = alto;
+  const id = "cl" + Math.random().toString(36).slice(2,8);
+  let d;
+  if(forma === "cono")        d = `<polygon points="${w/2},0 ${w},${h} 0,${h}"`;
+  else if(forma === "esfera") d = `<ellipse cx="${w/2}" cy="${h/2}" rx="${w/2}" ry="${h/2}"`;
+  else                        d = `<rect x="0" y="0" width="${w}" height="${h}" rx="3"`;
+  let y = 0, franjas = "";
+  bandas.forEach(b=>{
+    const bh = h*b.f;
+    franjas += `<rect x="0" y="${y.toFixed(1)}" width="${w}" height="${bh.toFixed(1)}" fill="${b.c}"/>`;
+    y += bh;
+  });
+  return `<defs><clipPath id="${id}">${d} /></clipPath></defs>`
+       + `<g clip-path="url(#${id})">${franjas}</g>`
+       + `${d} fill="none" stroke="#1B2B33" stroke-width="1.2"/>`;
+}
+function bTope(tipo, cx, base, color){
+  const c = color || "#111";
+  if(tipo === "cilindro") return `<rect x="${cx-7}" y="${base-16}" width="14" height="16" fill="${c}" stroke="#1B2B33" stroke-width="1"/>`;
+  if(tipo === "cono")     return `<polygon points="${cx},${base-17} ${cx+8},${base} ${cx-8},${base}" fill="${c}" stroke="#1B2B33" stroke-width="1"/>`;
+  if(tipo === "conoinv")  return `<polygon points="${cx},${base} ${cx+8},${base-17} ${cx-8},${base-17}" fill="${c}" stroke="#1B2B33" stroke-width="1"/>`;
+  if(tipo === "2arriba")  return `<polygon points="${cx},${base-34} ${cx+7},${base-19} ${cx-7},${base-19}" fill="${c}"/><polygon points="${cx},${base-17} ${cx+7},${base-2} ${cx-7},${base-2}" fill="${c}"/>`;
+  if(tipo === "2abajo")   return `<polygon points="${cx},${base-2} ${cx+7},${base-17} ${cx-7},${base-17}" fill="${c}"/><polygon points="${cx},${base-19} ${cx+7},${base-34} ${cx-7},${base-34}" fill="${c}"/>`;
+  if(tipo === "bases")    return `<polygon points="${cx},${base-34} ${cx+7},${base-19} ${cx-7},${base-19}" fill="${c}"/><polygon points="${cx},${base-2} ${cx+7},${base-17} ${cx-7},${base-17}" fill="${c}"/>`;
+  if(tipo === "vertices") return `<polygon points="${cx},${base-19} ${cx+7},${base-34} ${cx-7},${base-34}" fill="${c}"/><polygon points="${cx},${base-17} ${cx+7},${base-2} ${cx-7},${base-2}" fill="${c}"/>`;
+  if(tipo === "2esferas") return `<circle cx="${cx}" cy="${base-26}" r="7.5" fill="${c}"/><circle cx="${cx}" cy="${base-8}" r="7.5" fill="${c}"/>`;
+  if(tipo === "esfera")   return `<circle cx="${cx}" cy="${base-9}" r="8.5" fill="${c}" stroke="#1B2B33" stroke-width="1"/>`;
+  if(tipo === "aspa")     return `<g stroke="${c}" stroke-width="3.4" stroke-linecap="round"><line x1="${cx-8}" y1="${base-17}" x2="${cx+8}" y2="${base-1}"/><line x1="${cx+8}" y1="${base-17}" x2="${cx-8}" y2="${base-1}"/></g>`;
+  return "";
+}
+/* boya completa con pie, etiqueta y nota */
+function boya(cx, bandas, forma, tope, topeColor, titulo, nota, luz){
+  const w = 30, h = 52, top = 108, base = top;       // el flotador va de top a top+h
+  let s = `<g transform="translate(${cx-w/2},${top})">${bFlotador(bandas, w, h, forma)}</g>`;
+  s += bTope(tope, cx, top - 4, topeColor);
+  s += `<line x1="${cx}" y1="${top+h}" x2="${cx}" y2="${top+h+8}" stroke="#1B2B33" stroke-width="1.2"/>`;
+  s += `<path d="M${cx-26} ${top+h+10} q13 -5 26 0 q13 5 26 0" fill="none" stroke="#3E6C7E" stroke-width="1.4" opacity=".7"/>`;
+  s += `<text x="${cx}" y="${top+h+30}" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">${titulo}</text>`;
+  if(luz)  s += `<text x="${cx}" y="${top+h+45}" text-anchor="middle" font-size="10.5" fill="currentColor" opacity=".75">${luz}</text>`;
+  if(nota) s += `<text x="${cx}" y="${top+h+(luz?59:45)}" text-anchor="middle" font-size="10.5" fill="currentColor" opacity=".75">${nota}</text>`;
+  return s;
+}
+const ROJO="#C1272D", VERDE="#1C7A47", AMAR="#E8B33A", NEGRO="#1B2B33", BLANCO="#F7F4EC";
+
+/* ---- las láminas ---- */
+const LAM = [
+
+{id:"lat", ut:5, t:"Marcas laterales · región A",
+ d:"El color y la forma dicen por qué banda hay que dejarlas cuando se entra a puerto. Si se sale, al revés.",
+ svg:()=>`<svg viewBox="0 0 560 230" class="lam">
+  <text x="280" y="20" text-anchor="middle" font-size="12" fill="currentColor" opacity=".7">sentido convencional: entrando a puerto</text>
+  <defs><marker id="fl" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#3E6C7E"/></marker></defs>
+  <line x1="120" y1="36" x2="440" y2="36" stroke="#3E6C7E" stroke-width="1.6" marker-end="url(#fl)" opacity=".8"/>
+  ${boya(150,[{c:ROJO,f:1}],"lata","cilindro",ROJO,"BABOR","se deja a babor","luz roja")}
+  ${boya(410,[{c:VERDE,f:1}],"cono","cono",VERDE,"ESTRIBOR","se deja a estribor","luz verde")}
+  ${boya(280,[{c:ROJO,f:.38},{c:VERDE,f:.24},{c:ROJO,f:.38}],"lata","cilindro",ROJO,"BIFURCACIÓN","canal principal a estribor","roja con franja verde")}
+ </svg>`,
+ claves:["Babor: roja, cilíndrica (lata), tope cilindro rojo.",
+         "Estribor: verde, cónica, tope cono verde con el vértice arriba.",
+         "El color de fondo de una bifurcación indica la banda por la que se deja siguiendo el canal principal.",
+         "Al salir de puerto se invierte: la roja queda a estribor."]},
+
+{id:"card", ut:5, t:"Marcas cardinales · la regla del reloj",
+ d:"Los conos apuntan hacia donde está el negro, y el número de centelleos es la hora en la esfera del reloj.",
+ svg:()=>`<svg viewBox="0 0 620 250" class="lam">
+  ${boya(90,[{c:NEGRO,f:.5},{c:AMAR,f:.5}],"lata","2arriba",NEGRO,"NORTE","paso por el norte","Q o VQ continuo")}
+  ${boya(230,[{c:NEGRO,f:.34},{c:AMAR,f:.32},{c:NEGRO,f:.34}],"lata","bases",NEGRO,"ESTE","paso por el este","Q(3) 10 s")}
+  ${boya(370,[{c:AMAR,f:.5},{c:NEGRO,f:.5}],"lata","2abajo",NEGRO,"SUR","paso por el sur","Q(6) + destello largo 15 s")}
+  ${boya(510,[{c:AMAR,f:.34},{c:NEGRO,f:.32},{c:AMAR,f:.34}],"lata","vertices",NEGRO,"OESTE","paso por el oeste","Q(9) 15 s")}
+  <g opacity=".8">
+   <circle cx="560" cy="48" r="30" fill="none" stroke="currentColor" stroke-width="1.2"/>
+   <text x="560" y="26" text-anchor="middle" font-size="9" fill="currentColor">12 · N</text>
+   <text x="592" y="52" text-anchor="middle" font-size="9" fill="currentColor">3 · E</text>
+   <text x="560" y="76" text-anchor="middle" font-size="9" fill="currentColor">6 · S</text>
+   <text x="528" y="52" text-anchor="middle" font-size="9" fill="currentColor">9 · O</text>
+  </g>
+ </svg>`,
+ claves:["Norte: conos arriba, negro arriba, centelleo continuo.",
+         "Este: conos base con base (rombo), 3 centelleos, como las 3 del reloj.",
+         "Sur: conos abajo, negro abajo, 6 centelleos más un destello largo.",
+         "Oeste: conos vértice con vértice (copa), 9 centelleos.",
+         "El destello largo solo lo lleva la Sur: es la forma segura de distinguirla.",
+         "La cardinal se fondea en el cuadrante que da nombre, y se pasa por ese lado."]},
+
+{id:"otras", ut:5, t:"Peligro aislado, aguas navegables y especiales",
+ d:"Las tres que quedan. Ninguna es lateral, así que no dicen por dónde pasar siguiendo un canal.",
+ svg:()=>`<svg viewBox="0 0 620 250" class="lam">
+  ${boya(100,[{c:NEGRO,f:.36},{c:ROJO,f:.28},{c:NEGRO,f:.36}],"lata","2esferas",NEGRO,"PELIGRO AISLADO","se fondea sobre el peligro","blanca, grupos de 2 destellos")}
+  ${boya(270,[{c:ROJO,f:.25},{c:BLANCO,f:.25},{c:ROJO,f:.25},{c:BLANCO,f:.25}],"esfera","esfera",ROJO,"AGUAS NAVEGABLES","aguas seguras alrededor","blanca Iso, Oc, LFl 10 s o Morse A")}
+  ${boya(430,[{c:AMAR,f:1}],"lata","aspa",AMAR,"ESPECIAL","zona de baño, vertidos, cables","amarilla")}
+  ${boya(560,[{c:AMAR,f:.5},{c:"#2E6FB7",f:.5}],"lata","aspa",AMAR,"NUEVO PELIGRO","duplica la marca que corresponda","puede llevar racón «D»")}
+ </svg>`,
+ claves:["Peligro aislado: dos esferas negras de tope, dos destellos. Dos y dos.",
+         "Aguas navegables: franjas verticales rojas y blancas, esfera roja, luz blanca.",
+         "Especial: todo amarillo, aspa amarilla. No indica peligro por sí misma.",
+         "Un nuevo peligro se baliza duplicando la marca cardinal o lateral que corresponda."]},
+
+{id:"ritmos", ut:5, t:"Ritmos de luz · cómo se leen",
+ d:"La barra clara es luz encendida y la oscura, apagada. El periodo es lo que tarda en repetirse el dibujo.",
+ svg:()=>{
+   const filas=[
+     ["F · fija",[[0,100]]],
+     ["Iso · isofase",[[0,25],[50,25]]],
+     ["Oc · ocultaciones",[[0,38],[46,38],[92,8]]],
+     ["D · destellos",[[0,12],[50,12]]],
+     ["Gp D(2) · grupo de 2",[[0,9],[14,9],[50,9],[64,9]]],
+     ["Q · centelleos",[[0,6],[13,6],[26,6],[39,6],[52,6],[65,6],[78,6],[91,6]]],
+     ["Q(3) 10 s · cardinal E",[[0,6],[10,6],[20,6]]],
+     ["Q(6)+LFl 15 s · cardinal S",[[0,5],[8,5],[16,5],[24,5],[32,5],[40,5],[52,22]]],
+     ["Q(9) 15 s · cardinal O",[[0,5],[8,5],[16,5],[24,5],[32,5],[40,5],[48,5],[56,5],[64,5]]]
+   ];
+   let s=`<svg viewBox="0 0 560 ${filas.length*30+24}" class="lam">`;
+   filas.forEach((f,i)=>{
+     const y=18+i*30;
+     s+=`<text x="0" y="${y+11}" font-size="11.5" fill="currentColor">${f[0]}</text>`;
+     s+=`<rect x="200" y="${y}" width="350" height="15" fill="#1B2B33" opacity=".85" rx="2"/>`;
+     f[1].forEach(seg=>{
+       s+=`<rect x="${200+seg[0]*3.5}" y="${y}" width="${seg[1]*3.5}" height="15" fill="#F2C744" rx="2"/>`;
+     });
+   });
+   return s+`</svg>`;
+ },
+ claves:["Isofase: luz y oscuridad duran lo mismo.",
+         "Ocultaciones: la luz dura más que la oscuridad.",
+         "Destellos: la oscuridad dura más que la luz.",
+         "Centelleos: unos 50 a 79 por minuto, propios de las cardinales.",
+         "El número entre paréntesis es cuántos destellos tiene el grupo; los segundos, el periodo."]},
+
+{id:"fuego", ut:3, t:"Fuegos a bordo · triángulo y agentes",
+ d:"Todo fuego necesita tres cosas a la vez. Apagar es quitarle una.",
+ svg:()=>`<svg viewBox="0 0 580 300" class="lam">
+  <polygon points="130,30 240,215 20,215" fill="none" stroke="currentColor" stroke-width="2"/>
+  <text x="130" y="22" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">COMBUSTIBLE</text>
+  <text x="8" y="233" font-size="12.5" font-weight="600" fill="currentColor">CALOR</text>
+  <text x="252" y="233" text-anchor="end" font-size="12.5" font-weight="600" fill="currentColor">COMBURENTE</text>
+  <text x="130" y="140" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">quita un lado</text>
+  <text x="130" y="156" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">y el fuego se apaga</text>
+  <g font-size="11.5" fill="currentColor">
+   <text x="300" y="34" font-weight="600" font-size="12.5">Clases de fuego</text>
+   <rect x="300" y="46" width="14" height="14" rx="3" fill="#8B6B3E"/><text x="324" y="58">A · sólidos: madera, tejidos, papel</text>
+   <rect x="300" y="72" width="14" height="14" rx="3" fill="#C1272D"/><text x="324" y="84">B · líquidos: gasoil, gasolina, aceites</text>
+   <rect x="300" y="98" width="14" height="14" rx="3" fill="#E8B33A"/><text x="324" y="110">C · gases: propano, butano</text>
+   <rect x="300" y="124" width="14" height="14" rx="3" fill="#6B7C8C"/><text x="324" y="136">D · metales ligeros</text>
+   <rect x="300" y="150" width="14" height="14" rx="3" fill="#1C7A47"/><text x="324" y="162">F · aceites de cocina</text>
+   <text x="300" y="196" font-weight="600" font-size="12.5">Qué usar</text>
+   <text x="300" y="214">Agua: solo clase A. Nunca en eléctricos.</text>
+   <text x="300" y="232">Polvo ABC: sólidos, líquidos y gases.</text>
+   <text x="300" y="250">CO₂: eléctricos y líquidos, sin residuo.</text>
+   <text x="300" y="268">Manta: pequeños fuegos de cocina.</text>
+   <text x="300" y="286" opacity=".75">Cámara de máquinas: cerrar y descargar por la portilla.</text>
+  </g>
+ </svg>`,
+ claves:["El fuego eléctrico se ataca cortando primero la corriente y con un agente no conductor.",
+         "No abrir la tapa del motor para mirar: el aire aviva el fuego de golpe.",
+         "Extintor: tirar del pasador, apuntar a la base de la llama y barrer.",
+         "El extintor debe estar accesible, revisado y con la presión en verde."]},
+
+{id:"zonas", ut:3, t:"Zonas de navegación · de la 1 a la 7",
+ d:"La zona depende de cuánto te alejas de un abrigo. De ella depende el material de seguridad obligatorio.",
+ svg:()=>{
+   const z=[["7","Aguas protegidas: puertos, rías, bahías abrigadas",0,30,"#CFE9DC"],
+            ["6","Hasta 2 millas de un abrigo",30,58,"#DCEBD3"],
+            ["5","Hasta 5 millas de un abrigo",58,92,"#E8EFC9"],
+            ["4","Hasta 12 millas de la costa",92,140,"#F6EFC2"],
+            ["3","Hasta 25 millas de la costa",140,186,"#F7E2B8"],
+            ["2","Hasta 60 millas de la costa",186,232,"#F3D2B4"],
+            ["1","Navegación ilimitada",232,278,"#EBC3BC"]];
+   let s=`<svg viewBox="0 0 580 300" class="lam">`;
+   s+=`<rect x="0" y="0" width="70" height="300" fill="#D9CDA8"/>`;
+   s+=`<text x="35" y="155" text-anchor="middle" font-size="12" font-weight="600" fill="#5C4A22" transform="rotate(-90 35 155)">COSTA</text>`;
+   z.forEach(r=>{
+     s+=`<rect x="70" y="${r[2]}" width="510" height="${r[3]-r[2]}" fill="${r[4]}"/>`;
+     s+=`<text x="86" y="${(r[2]+r[3])/2+5}" font-size="13" font-weight="700" fill="#1B2B33">Zona ${r[0]}</text>`;
+     s+=`<text x="150" y="${(r[2]+r[3])/2+5}" font-size="12" fill="#1B2B33">${r[1]}</text>`;
+   });
+   s+=`<line x1="70" y1="0" x2="70" y2="300" stroke="#1B2B33" stroke-width="1.5"/>`;
+   s+=`<g opacity=".9"><rect x="440" y="98" width="130" height="36" rx="5" fill="#0E2B33"/>
+      <text x="505" y="114" text-anchor="middle" font-size="10.5" fill="#F7F4EC">EL PER LLEGA AQUÍ</text>
+      <text x="505" y="127" text-anchor="middle" font-size="10.5" fill="#F7F4EC">zona 4 · 12 millas</text></g>`;
+   return s+`</svg>`;
+ },
+ claves:["El PER habilita la zona 4: hasta 12 millas de la costa, embarcaciones de hasta 15 metros.",
+         "Cuanto más baja es la zona, más lejos se navega y más material se exige.",
+         "La zona se fija al despachar la embarcación y condiciona chalecos, balsa, bengalas y radio.",
+         "Con las prácticas de vela y las de Baleares se amplían las atribuciones, no la zona."]},
+
+{id:"canal", ut:6, t:"Canales angostos y pasos estrechos",
+ d:"Regla 9 del RIPA. La idea es sencilla: cada uno por su derecha y el pequeño no estorba al grande.",
+ svg:()=>`<svg viewBox="0 0 580 270" class="lam">
+  <rect x="0" y="0" width="580" height="60" fill="#D9CDA8"/>
+  <rect x="0" y="210" width="580" height="60" fill="#D9CDA8"/>
+  <text x="20" y="35" font-size="11.5" fill="#5C4A22">tierra</text>
+  <text x="20" y="245" font-size="11.5" fill="#5C4A22">tierra</text>
+  <line x1="0" y1="135" x2="580" y2="135" stroke="#3E6C7E" stroke-dasharray="7 7" stroke-width="1.2" opacity=".6"/>
+  <text x="290" y="130" text-anchor="middle" font-size="10" fill="#3E6C7E">eje del canal</text>
+  <g><rect x="80" y="150" width="120" height="30" rx="8" fill="#0E2B33"/>
+     <polygon points="200,150 232,165 200,180" fill="#0E2B33"/>
+     <text x="140" y="170" text-anchor="middle" font-size="11" fill="#F7F4EC">buque grande</text>
+     <text x="140" y="198" text-anchor="middle" font-size="10.5" fill="currentColor">navega por su estribor</text></g>
+  <g><rect x="380" y="88" width="90" height="24" rx="7" fill="#7A2E3C"/>
+     <polygon points="380,88 348,100 380,112" fill="#7A2E3C"/>
+     <text x="428" y="104" text-anchor="middle" font-size="10.5" fill="#F7F4EC">contrario</text>
+     <text x="425" y="76" text-anchor="middle" font-size="10.5" fill="currentColor">también por su estribor</text></g>
+  <g><circle cx="300" cy="196" r="10" fill="#C1272D" stroke="#1B2B33"/>
+     <text x="300" y="218" text-anchor="middle" font-size="10" fill="currentColor">recreo</text>
+     <text x="300" y="232" text-anchor="middle" font-size="10" fill="currentColor" opacity=".75">no estorba</text></g>
+  <text x="290" y="22" text-anchor="middle" font-size="11.5" fill="currentColor">cada buque, lo más cerca posible del límite que le queda a estribor</text>
+ </svg>`,
+ claves:["Todo buque navega lo más cerca posible del límite exterior que le queda por estribor.",
+         "Las embarcaciones de menos de 20 metros y los veleros no estorbarán a un buque que solo pueda navegar dentro del canal.",
+         "No se cruza el canal si eso estorba a quien solo puede navegar por él.",
+         "No se fondea en un canal angosto salvo necesidad.",
+         "Al acercarse a un recodo sin visibilidad: una pitada larga, y contesta el que viene."]},
+
+{id:"sect", ut:6, t:"Luces de navegación · sectores",
+ d:"Cada luz cubre un arco. Lo que ves desde fuera dice cómo está orientado el buque respecto a ti.",
+ svg:()=>`<svg viewBox="0 0 580 280" class="lam">
+  <g transform="translate(160,140)">
+    <path d="M0,0 L-95,-95 A134,134 0 0,1 0,-134 Z" fill="#C1272D" opacity=".55"/>
+    <path d="M0,0 L0,-134 A134,134 0 0,1 95,-95 Z" fill="#1C7A47" opacity=".6"/>
+    <path d="M0,0 L95,95 A134,134 0 0,1 -95,95 Z" fill="#9AA7B0" opacity=".55"/>
+    <circle cx="0" cy="0" r="134" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/>
+    <polygon points="0,-26 13,16 -13,16" fill="#0E2B33"/>
+    <text x="0" y="-100" text-anchor="middle" font-size="11" fill="#7A1B22" font-weight="600">112,5°</text>
+    <text x="-62" y="-52" text-anchor="middle" font-size="10" fill="currentColor">babor rojo</text>
+    <text x="62" y="-52" text-anchor="middle" font-size="10" fill="currentColor">estribor verde</text>
+    <text x="0" y="118" text-anchor="middle" font-size="11" fill="currentColor" font-weight="600">alcance blanca 135°</text>
+  </g>
+  <g font-size="12" fill="currentColor">
+   <text x="330" y="44" font-weight="600" font-size="13">Arcos de visibilidad</text>
+   <text x="330" y="70">Luz de tope, blanca: 225°</text>
+   <text x="330" y="92">Cada luz de costado: 112,5°</text>
+   <text x="330" y="114">Luz de alcance, blanca: 135°</text>
+   <text x="330" y="136" opacity=".75">225 + 135 = 360: la vuelta completa</text>
+   <text x="330" y="172" font-weight="600" font-size="13">Qué significa lo que veo</text>
+   <text x="330" y="196">Roja y verde a la vez: viene de proa.</text>
+   <text x="330" y="218">Solo verde: lo veo por su babor, pasa hacia mi derecha.</text>
+   <text x="330" y="240">Solo roja: lo veo por su estribor, yo debo ceder.</text>
+   <text x="330" y="262">Solo blanca de alcance: lo estoy alcanzando yo.</text>
+  </g>
+ </svg>`,
+ claves:["Si ves roja y verde juntas, lo tienes de proa: ambos caen a estribor.",
+         "Si ves su luz roja, él te ve por su estribor y tú cedes el paso.",
+         "Si solo ves una luz blanca de popa, eres tú quien alcanza y quien se aparta.",
+         "El tope va de la proa hasta 22,5° a popa del través de cada banda."]},
+
+{id:"luces", ut:6, t:"Luces y marcas por tipo de buque",
+ d:"La columna vertical de luces todo horizonte identifica al buque. De día, la figura equivalente.",
+ svg:()=>{
+   const f=[
+    ["Sin gobierno",["#C1272D","#C1272D"],"dos esferas negras"],
+    ["Maniobra restringida",["#C1272D","#F7F4EC","#C1272D"],"esfera · bicono · esfera"],
+    ["Restringido por su calado",["#C1272D","#C1272D","#C1272D"],"un cilindro negro"],
+    ["Pesca de arrastre",["#1C7A47","#F7F4EC"],"dos conos por el vértice"],
+    ["Otras artes de pesca",["#C1272D","#F7F4EC"],"dos conos por el vértice"],
+    ["Práctico en servicio",["#F7F4EC","#C1272D"],"bandera H"],
+    ["Fondeado (menos de 50 m)",["#F7F4EC"],"una bola negra a proa"],
+    ["Varado",["#C1272D","#C1272D"],"tres esferas negras"]
+   ];
+   let s=`<svg viewBox="0 0 580 ${f.length*36+22}" class="lam">`;
+   f.forEach((r,i)=>{
+     const y=22+i*36;
+     s+=`<text x="0" y="${y+10}" font-size="11.8" fill="currentColor">${r[0]}</text>`;
+     r[1].forEach((c,k)=>{
+       s+=`<circle cx="${300+0}" cy="${y+3+k*13}" r="5.5" fill="${c}" stroke="#1B2B33" stroke-width="1"/>`;
+     });
+     s+=`<text x="330" y="${y+10}" font-size="11" fill="currentColor" opacity=".75">de día: ${r[2]}</text>`;
+   });
+   return s+`</svg>`;
+ },
+ claves:["Dos rojas: sin gobierno. Tres rojas: restringido por su calado.",
+         "Rojo-blanco-rojo: capacidad de maniobra restringida.",
+         "Verde sobre blanca: arrastre. Roja sobre blanca: los demás pesqueros.",
+         "Blanca sobre roja: práctico. Se recuerda porque el práctico lleva el blanco arriba."]},
+
+{id:"preferencia", ut:6, t:"Quién cede el paso · orden de la regla 18",
+ d:"De arriba abajo, de menos maniobrable a más. Cada uno se aparta de todos los que tiene encima.",
+ svg:()=>{
+   const o=["Sin gobierno","Capacidad de maniobra restringida","Dedicado a la pesca","De vela","De propulsión mecánica","Hidroavión y nave de vuelo rasante"];
+   let s=`<svg viewBox="0 0 580 ${o.length*38+40}" class="lam">`;
+   s+=`<text x="0" y="16" font-size="11.5" fill="currentColor" opacity=".75">más preferencia</text>`;
+   o.forEach((t,i)=>{
+     const y=26+i*38, op=1-(i*0.09);
+     s+=`<rect x="0" y="${y}" width="${430-i*18}" height="28" rx="6" fill="#0E2B33" opacity="${op.toFixed(2)}"/>`;
+     s+=`<text x="14" y="${y+19}" font-size="12.5" fill="#F7F4EC">${i+1}. ${t}</text>`;
+   });
+   s+=`<text x="0" y="${26+o.length*38+18}" font-size="11.5" fill="currentColor" opacity=".75">menos preferencia · se aparta de todos</text>`;
+   s+=`<g transform="translate(500,40)"><line x1="0" y1="0" x2="0" y2="${o.length*38-30}" stroke="currentColor" stroke-width="1.4" opacity=".5"/>
+      <polygon points="-5,${o.length*38-30} 5,${o.length*38-30} 0,${o.length*38-18}" fill="currentColor" opacity=".5"/>
+      <text x="14" y="${(o.length*38-30)/2}" font-size="11" fill="currentColor" opacity=".7">cede</text></g>`;
+   return s+`</svg>`;
+ },
+ claves:["Un buque a motor se aparta del velero, del pesquero, del restringido y del que no gobierna.",
+         "El velero se aparta del pesquero, del restringido y del que no gobierna, pero no del buque a motor.",
+         "El buque que alcanza se aparta siempre, sea cual sea su categoría.",
+         "Un velero con el motor encendido es, a efectos del RIPA, un buque de propulsión mecánica."]}
+];
+
+/* ---- vista ---- */
+function paintLaminas(filtro){
+  const ls = filtro ? LAM.filter(l=>l.ut===filtro) : LAM;
+  let h = "";
+  if(filtro){
+    h += `<div class="row" style="margin-bottom:16px"><button class="btn ghost sm" onclick="paintLaminas()">← Todas las láminas</button></div>`;
+  } else {
+    h += `<div class="lam-nav">`;
+    [3,5,6].forEach(u=>{
+      const n = LAM.filter(l=>l.ut===u).length;
+      h += `<button class="pl-day" onclick="paintLaminas(${u})">${UT.find(x=>x.n===u).t} · ${n}</button>`;
+    });
+    h += `</div>`;
+  }
+  ls.forEach(l=>{
+    h += `<div class="panel lam-box" id="lam-${l.id}">
+      <h3 style="margin:0 0 3px;font-family:var(--serif);font-size:21px">${l.t}</h3>
+      <p style="font-size:13.3px;color:var(--tinta2);margin:0 0 14px">${l.d}</p>
+      <div class="lam-wrap">${l.svg()}</div>
+      <ul class="lam-claves">${l.claves.map(c=>"<li>"+c+"</li>").join("")}</ul>
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost sm" onclick="startTema(${l.ut},10)">Probarme con 10 preguntas</button>
+      </div>
+    </div>`;
+  });
+  $("#lam-body").innerHTML = h;
+}
+function lamina(id){
+  go("laminas");
+  const l = LAM.find(x=>x.id===id);
+  if(!l) return;
+  paintLaminas(l.ut);
+  setTimeout(function(){
+    const e = document.getElementById("lam-"+id);
+    if(e){ try{ e.scrollIntoView({behavior:"smooth", block:"start"}); }catch(err){} }
+  }, 60);
+}
+function lamUt(ut){ go("laminas"); paintLaminas(ut); }
 
 calcRumbos(); calcVTD(); calcSonda(); calcDemora();
 go("plan");
